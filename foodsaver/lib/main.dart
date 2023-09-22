@@ -112,6 +112,13 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                print('button pressed!');
+              },
+              child: Text('Next'),
+            ),
           ],
         ),
       ),

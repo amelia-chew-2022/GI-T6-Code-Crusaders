@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'addFoodItem.dart';
 
+import 'login.dart';
 
 class Inventory extends StatelessWidget {
   const Inventory({super.key, required this.email});
@@ -32,7 +33,10 @@ class Inventory extends StatelessWidget {
                               child: IconButton(
                             icon: Icon(Icons.logout),
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Login()));
                             },
                           ))
                         ],
@@ -64,7 +68,8 @@ class Inventory extends StatelessWidget {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AddFoodItem(email: email)));
+                                        builder: (context) =>
+                                            AddFoodItem(email: email)));
                               },
                             ))
                           ]),

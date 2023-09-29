@@ -9,12 +9,9 @@ class AddFoodItem extends StatefulWidget {
 
   const AddFoodItem({super.key, required this.email});
   final String email;
-
 }
 
 class _AddFoodItemState extends State<AddFoodItem> {
- 
- 
   final _formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController expireDateController = TextEditingController();
@@ -43,7 +40,8 @@ class _AddFoodItemState extends State<AddFoodItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: Form(
+         key: _formkey,
           child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
               child: Column(
@@ -86,11 +84,17 @@ class _AddFoodItemState extends State<AddFoodItem> {
                           labelText: "Food Item",
                           suffixIcon: Icon(Icons.food_bank),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Food Item';
+                          }
+                          return null;
+                        },
                       )),
                   Container(
                       padding: const EdgeInsets.all(10),
                       child: Center(
-                          child: TextField(
+                          child: TextFormField(
                         controller: expireDateController,
                         decoration: const InputDecoration(
                             suffixIcon: Icon(Icons.calendar_today),
@@ -100,6 +104,12 @@ class _AddFoodItemState extends State<AddFoodItem> {
                               color: Color(0xFF007F5C),
                             ))),
                         readOnly: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Expiry Date';
+                          }
+                          return null;
+                        },
                         onTap: () async {
                           DateTime? pickedDate = await showDatePicker(
                               context: context,
@@ -108,22 +118,18 @@ class _AddFoodItemState extends State<AddFoodItem> {
                               lastDate: DateTime(2101));
 
                           if (pickedDate != null) {
-                            print(pickedDate);
                             String formattedDate =
                                 DateFormat('yyyy-MM-dd').format(pickedDate);
-                            print(formattedDate);
 
                             setState(() {
                               expireDateController.text = formattedDate;
                             });
-                          } else {
-                            print("Date is not selected");
                           }
                         },
                       ))),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    child: TextField(
+                    child: TextFormField(
                       controller: quantityeController,
                       decoration: const InputDecoration(
                           suffixIcon: Icon(Icons.numbers),
@@ -132,6 +138,12 @@ class _AddFoodItemState extends State<AddFoodItem> {
                               borderSide: BorderSide(
                             color: Color(0xFF007F5C),
                           ))),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter Quantity';
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly
@@ -198,12 +210,17 @@ class _AddFoodItemState extends State<AddFoodItem> {
                       child: Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Inventory(
-                                        email: widget.email))
-                                        );
+                            if (_formkey.currentState!.validate()) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Inventory(email: widget.email)));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please fill input')));
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                               minimumSize: const Size.fromHeight(50),
@@ -211,7 +228,6 @@ class _AddFoodItemState extends State<AddFoodItem> {
                           child: const Text("Save"),
                         ),
                       )),
-
                 ],
               ))),
     );

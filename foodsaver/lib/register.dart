@@ -37,11 +37,10 @@ class _RegisterState extends State<Register> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     bool isFocused = false;
-    
+
     return Scaffold(
       body: Form(
         key: _formkey,
@@ -70,6 +69,12 @@ class _RegisterState extends State<Register> {
                         labelText: "Email",
                         suffixIcon: Icon(Icons.email),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your Email';
+                        }
+                        return null;
+                      },
                     )),
                 Padding(
                     padding: const EdgeInsets.all(10),
@@ -83,45 +88,66 @@ class _RegisterState extends State<Register> {
                         labelText: "Name",
                         suffixIcon: Icon(Icons.food_bank),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your Name';
+                        }
+                        return null;
+                      },
                     )),
                 Padding(
                     padding: const EdgeInsets.all(10),
                     child: TextFormField(
-                      controller: pwdController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: Color(0xFF007F5C),
-                          )),
-                          labelText: "Password",
-                          suffixIcon: Icon(Icons.password)),
-                    )),
+                        controller: pwdController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Color(0xFF007F5C),
+                            )),
+                            labelText: "Password",
+                            suffixIcon: Icon(Icons.password)),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your Password';
+                          }
+                          return null;
+                        })),
                 Padding(
                     padding: const EdgeInsets.all(10),
                     child: TextFormField(
-                      controller: confirmPwdController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: Color(0xFF007F5C),
-                          )),
-                          labelText: "Confirm Password",
-                          suffixIcon: Icon(Icons.password)),
-                    )),
+                        controller: confirmPwdController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Color(0xFF007F5C),
+                            )),
+                            labelText: "Confirm Password",
+                            suffixIcon: Icon(Icons.password)),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Confirm Password';
+                          }
+                          return null;
+                        })),
                 Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 16),
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to the Inventory Page
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Login())
-                              );
+                          if (_formkey.currentState!.validate()) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Login()));
                             sendPostRequest();
-
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Please fill input')));
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(50),
@@ -155,6 +181,4 @@ class _RegisterState extends State<Register> {
       ),
     );
   }
-
 }
-

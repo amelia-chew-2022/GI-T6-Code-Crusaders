@@ -4,7 +4,6 @@ import './register.dart';
 import 'package:flutter/gestures.dart';
 
 class Login extends StatefulWidget {
-
   @override
   State<Login> createState() => _LoginState();
 }
@@ -19,7 +18,6 @@ class _LoginState extends State<Login> {
     bool isFocused = false;
 
     return Scaffold(
- 
       body: Form(
         key: _formkey,
         child: Padding(
@@ -48,33 +46,50 @@ class _LoginState extends State<Login> {
                         labelText: "Email",
                         suffixIcon: Icon(Icons.email),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your Email';
+                        }
+                        return null;
+                      },
                     )),
                 Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 15, vertical: 16),
                     child: TextFormField(
-                      controller: pwdController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: Color(0xFF007F5C),
-                          )),
-                          labelText: "Password",
-                          suffixIcon: Icon(Icons.password)),
-                    )),
+                        controller: pwdController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Color(0xFF007F5C),
+                            )),
+                            labelText: "Password",
+                            suffixIcon: Icon(Icons.password)),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your Password';
+                          }
+                          return null;
+                        })),
                 Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 16),
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to the Inventory Page
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Inventory(email: emailController.text)));
+                          if (_formkey.currentState!.validate()) {
+                            // Navigate to the Inventory Page
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Inventory(
+                                        email: emailController.text)));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Please fill input')));
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(50),
@@ -82,31 +97,27 @@ class _LoginState extends State<Login> {
                         child: const Text("Login"),
                       ),
                     )),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
+                Padding(
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 16),
-                        child:  RichText
-                        (text:  TextSpan(
-              children: [
-                 TextSpan(
-                  text: 'Don\'t have an account? ',
-                  style:  new TextStyle(color: Colors.black),
-                ),
-                 TextSpan(
-                  text: 'Register Here',
-                  style:  TextStyle(color: Colors.blue),
-                  recognizer:  TapGestureRecognizer()
-                    ..onTap = () { Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Register()));
-                  },
-                ),
-              ]
-                        
-                        )
-                    ))
+                    child: RichText(
+                        text: TextSpan(children: [
+                      TextSpan(
+                        text: 'Don\'t have an account? ',
+                        style: new TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'Register Here',
+                        style: TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Register()));
+                          },
+                      ),
+                    ])))
               ],
             )),
       ),

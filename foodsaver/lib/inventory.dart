@@ -64,7 +64,7 @@ class Inventory extends StatelessWidget {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AddFoodItem()));
+                                        builder: (context) => AddFoodItem(email: email)));
                               },
                             ))
                           ]),

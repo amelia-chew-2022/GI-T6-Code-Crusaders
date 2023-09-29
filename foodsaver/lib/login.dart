@@ -99,7 +99,7 @@ class _LoginState extends State<Login> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      Inventory(email: emailController.text)));;
+                                      Inventory(email: emailController.text)));
                   },
                 ),
               ]

@@ -10,11 +10,13 @@ class FoodDetails extends StatefulWidget {
       required this.food,
       required this.quantity,
       required this.units,
-      required this.expiryDate});
+      required this.expiryDate,
+      required this.category});
   final String food;
   final int quantity;
   final String units;
   final String expiryDate;
+  final String category;
 }
 
 class _DetailsState extends State<FoodDetails> {
@@ -31,67 +33,67 @@ class _DetailsState extends State<FoodDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(children: [
-                            Container(
-                              child: IconButton(
-                            icon: Icon(Icons.chevron_left_rounded, size: 28),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            })),
-                            Text(widget.food,
-                              style: const TextStyle(
-                                color: Color(0xFF003B2B),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(children: [
+                              Container(
+                                  child: IconButton(
+                                      icon: Icon(Icons.chevron_left_rounded,
+                                          size: 28),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      })),
+                              Text(widget.food,
+                                  style: const TextStyle(
+                                    color: Color(0xFF003B2B),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  )),
+                            ]),
+                            Row(children: [
+                              // Edit Food Item
+                              Container(
+                                  child: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
                               )),
-                          ]),
-                          
-                          Row(children: [
-                            // Edit Food Item
-                            Container(
-                                child: IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            )),
-                            // Delete Function
-                            Container(
-                                child: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                          scrollable: true,
-                                          title: const Text("Filter By: "),
-                                          content: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Form(
-                                                child: Column(
-                                              children: [
-                                                TextFormField(
-                                                  decoration:
-                                                      const InputDecoration(
-                                                          icon:
-                                                              Icon(Icons.sort)),
-                                                )
-                                              ],
-                                            )),
-                                          ));
-                                    });
-                              },
-                            ))
-                            
-                          ]),
-                        ],
-                      )),
+                              // Delete Function
+                              Container(
+                                  child: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                            scrollable: true,
+                                            title: const Text("Filter By: "),
+                                            content: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Form(
+                                                  child: Column(
+                                                children: [
+                                                  TextFormField(
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            icon: Icon(
+                                                                Icons.sort)),
+                                                  )
+                                                ],
+                                              )),
+                                            ));
+                                      });
+                                },
+                              ))
+                            ]),
+                          ],
+                        )),
                     const Divider(
                       color: Color(0xFF007F5C),
                       thickness: 0.5,
@@ -100,23 +102,51 @@ class _DetailsState extends State<FoodDetails> {
                         padding: EdgeInsets.all(10),
                         child: Column(
                           children: [
-                            Text("Expiring on: ",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700)),
-                            Text(widget.expiryDate,
-                                style: TextStyle(fontSize: 14)),
+                            Row(
+                              children: [
+                                Text("Expiring on: ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700)),
+                                Text(widget.expiryDate,
+                                    style: TextStyle(fontSize: 14))
+                              ],
+                            )
                           ],
                         )),
                     Padding(
                         padding: EdgeInsets.all(10),
                         child: Column(
                           children: [
-                            const Text("Quantity: ",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700)),
-                            Text(
-                                widget.quantity.toString() + " " + widget.units,
-                                style: TextStyle(fontSize: 14)),
+                            Row(
+                              children: [
+                                const Text("Quantity: ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700)),
+                                Text(
+                                    widget.quantity.toString() +
+                                        " " +
+                                        widget.units,
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            )
+                          ],
+                        )),
+                    Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                const Text("Category: ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700)),
+                                Text(widget.category,
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            )
                           ],
                         ))
                   ]),

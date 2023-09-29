@@ -59,10 +59,12 @@ class _InventoryState extends State<Inventory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
           child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
-              child: Column(
+              child: SingleChildScrollView(
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -201,14 +203,12 @@ class _InventoryState extends State<Inventory> {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          FoodDetails(
-                                                            food: snapshot.data[index].foodItem,
-                                                            quantity: snapshot.data[index].quantity,
-                                                            units: snapshot.data[index].units,
-                                                            expiryDate: snapshot.data[index].expiryDate
-                                                            )));
-                                              
+                                                      builder: (context) =>FoodDetails(
+                                                              food: snapshot.data[index].foodItem,
+                                                              quantity:snapshot.data[index].quantity,
+                                                              units: snapshot.data[index].units,
+                                                              expiryDate: snapshot.data[index].expiryDate,
+                                                              category: snapshot.data[index].category)));
                                             },
                                             icon: const Icon(
                                               Icons.remove_red_eye,
@@ -278,7 +278,7 @@ class _InventoryState extends State<Inventory> {
                     ),
                   ),
                 ],
-              ))),
+              )))),
     );
   }
 }

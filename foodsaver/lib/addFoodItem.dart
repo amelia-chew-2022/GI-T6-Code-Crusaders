@@ -40,11 +40,13 @@ class _AddFoodItemState extends State<AddFoodItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
-         key: _formkey,
+          key: _formkey,
           child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
-              child: Column(
+              child: SingleChildScrollView(
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -66,7 +68,6 @@ class _AddFoodItemState extends State<AddFoodItem> {
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
                               )),
-                          
                         ],
                       )),
                   const Divider(
@@ -230,7 +231,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                         ),
                       )),
                 ],
-              ))),
+              )))),
     );
   }
 }

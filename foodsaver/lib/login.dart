@@ -18,11 +18,13 @@ class _LoginState extends State<Login> {
     bool isFocused = false;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
         key: _formkey,
         child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
-            child: Column(
+            child: SingleChildScrollView(
+                child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -119,7 +121,7 @@ class _LoginState extends State<Login> {
                       ),
                     ])))
               ],
-            )),
+            ))),
       ),
     );
   }

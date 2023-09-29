@@ -45,20 +45,36 @@ def get_foodItems():
                         },
                          {
                             "foodItem": "Meji Milk",
-                            "expiryDate": "2023-10-01",
+                            "expiryDate": "2023-10-29",
                             "quantity": 500,
                             "units": "mililitres",
                             "category": "Milk Product",
                             "id": 2
                         },
                         {
+                            "foodItem": "Bread",
+                            "expiryDate": "2023-09-30",
+                            "quantity": 2,
+                            "units": "loaf",
+                            "category": "Grains",
+                            "id": 1
+                        },
+                        {
                             "foodItem": "HL Milk",
-                            "expiryDate": "2023-10-04",
+                            "expiryDate": "2023-10-02",
                             "quantity": 500,
                             "units": "mililitres",
                             "category": "Milk Product",
                             "id": 2
-                        }
+                        },
+                        {
+                            "foodItem": "Meji Milk",
+                            "expiryDate": "2023-10-19",
+                            "quantity": 500,
+                            "units": "mililitres",
+                            "category": "Milk Product",
+                            "id": 2
+                        },
                     ]
     response["message"] = "success"
     response["code"] = 200

@@ -42,11 +42,14 @@ class _RegisterState extends State<Register> {
     bool isFocused = false;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
         key: _formkey,
         child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
-            child: Column(
+            child: SingleChildScrollView(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -129,7 +132,7 @@ class _RegisterState extends State<Register> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Confirm Password';
                           }
-                          if(pwdController.text !=value){
+                          if (pwdController.text != value) {
                             return 'Password mismatch';
                           }
                           return null;
@@ -180,7 +183,7 @@ class _RegisterState extends State<Register> {
                       ),
                     ])))
               ],
-            )),
+            ))),
       ),
     );
   }

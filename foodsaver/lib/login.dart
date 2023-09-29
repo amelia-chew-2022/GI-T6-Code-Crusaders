@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './inventory.dart';
+import './register.dart';
 import 'package:flutter/gestures.dart';
 
 class Login extends StatefulWidget {
@@ -78,7 +79,7 @@ class _LoginState extends State<Login> {
                         style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(50),
                             backgroundColor: Color(0xFF003B2B)),
-                        child: const Text("Submit"),
+                        child: const Text("Login"),
                       ),
                     )),
                     Padding(
@@ -99,7 +100,7 @@ class _LoginState extends State<Login> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      Inventory(email: emailController.text)));
+                                      Register()));
                   },
                 ),
               ]

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './login.dart';
+import './test.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           scaffoldBackgroundColor: const Color(0xFFF0F5F2),
           useMaterial3: false),
-      home: Login(),
+      home: Test(), //need change back to Login()
     );
   }
 }

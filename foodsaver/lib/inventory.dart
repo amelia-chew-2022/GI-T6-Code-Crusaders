@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:foodsaver/foodDetails.dart';
 import 'addFoodItem.dart';
+import 'foodDetails.dart';
 import 'package:http/http.dart' as http;
 import 'login.dart';
 import "dart:convert";
@@ -48,7 +50,7 @@ class _InventoryState extends State<Inventory> {
           units: indvFood["units"],
           category: indvFood["category"]);
 
-      //Adding user to the list.
+      //Adding food to the list.
       inventoryList.add(food);
     }
     return inventoryList;
@@ -100,13 +102,35 @@ class _InventoryState extends State<Inventory> {
                                 fontWeight: FontWeight.w700,
                               )),
                           Row(children: [
+                            // Sort Function
                             Container(
                                 child: IconButton(
                               icon: Icon(Icons.sort),
                               onPressed: () {
-                                // Navigator.pop(context);
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                          scrollable: true,
+                                          title: const Text("Filter By: "),
+                                          content: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Form(
+                                                child: Column(
+                                              children: [
+                                                TextFormField(
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          icon:
+                                                              Icon(Icons.sort)),
+                                                )
+                                              ],
+                                            )),
+                                          ));
+                                    });
                               },
                             )),
+                            // Add Food Items
                             Container(
                                 child: IconButton(
                               icon: Icon(Icons.add),
@@ -125,6 +149,7 @@ class _InventoryState extends State<Inventory> {
                     color: Color(0xFF007F5C),
                     thickness: 0.5,
                   ),
+                  // List of Food
                   Container(
                     padding: EdgeInsets.all(10.0),
                     child: FutureBuilder(
@@ -145,7 +170,76 @@ class _InventoryState extends State<Inventory> {
                               return Column(
                                 children: <Widget>[
                                   ListTile(
-                                    title: Text(snapshot.data[index].foodItem),
+                                    leading: Icon(
+                                      Icons.circle,
+                                      size: 15,
+                                      color: DateTime.parse(snapshot
+                                                      .data[index].expiryDate)
+                                                  .difference(DateTime.parse(
+                                                      DateFormat("yyyy-MM-dd")
+                                                          .format(
+                                                              DateTime.now())))
+                                                  .inDays <=
+                                              1
+                                          ? Color(0xFFD63434)
+                                          : DateTime.parse(snapshot.data[index].expiryDate)
+                                                      .difference(DateTime.parse(
+                                                          DateFormat("yyyy-MM-dd")
+                                                              .format(
+                                                                  DateTime.now())))
+                                                      .inDays <=
+                                                  3
+                                              ? Color(0xFFFF9800)
+                                              : Color(0xFF007F5C),
+                                    ),
+                                    trailing: Wrap(
+                                      spacing: 5, // space between the icons
+                                      children: <Widget>[
+                                        // View Food Details
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          FoodDetails(
+                                                            food: snapshot.data[index].foodItem,
+                                                            quantity: snapshot.data[index].quantity,
+                                                            units: snapshot.data[index].units,
+                                                            expiryDate: snapshot.data[index].expiryDate
+                                                            )));
+                                              
+                                            },
+                                            icon: const Icon(
+                                              Icons.remove_red_eye,
+                                              size: 20,
+                                            )),
+                                        // Edit Food Details
+                                        IconButton(
+                                            onPressed: () {
+                                              snapshot.data[index].foodItem;
+                                            },
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              size: 20,
+                                            )),
+                                        // Delete Food
+                                        IconButton(
+                                            onPressed: () {
+                                              snapshot.data[index].foodItem;
+                                            },
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              size: 20,
+                                            )),
+                                      ],
+                                    ),
+                                    title: Text(
+                                      snapshot.data[index].foodItem,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700),
+                                    ),
                                     subtitle: Text(
                                       "Expiring on: " +
                                           snapshot.data[index].expiryDate,
@@ -153,15 +247,22 @@ class _InventoryState extends State<Inventory> {
                                           color: DateTime.parse(snapshot
                                                           .data[index]
                                                           .expiryDate)
-                                                      .difference(DateTime
-                                                          .parse(DateFormat(
-                                                                  "yyyy-MM-dd")
-                                                              .format(DateTime
-                                                                  .now())))
+                                                      .difference(DateTime.parse(
+                                                          DateFormat("yyyy-MM-dd").format(
+                                                              DateTime.now())))
                                                       .inDays <=
                                                   1
                                               ? Color(0xFFD63434)
-                                              : Color(0xFF007F5C)),
+                                              : DateTime.parse(snapshot
+                                                              .data[index]
+                                                              .expiryDate)
+                                                          .difference(DateTime.parse(
+                                                              DateFormat("yyyy-MM-dd")
+                                                                  .format(DateTime.now())))
+                                                          .inDays <=
+                                                      3
+                                                  ? Color(0xFFFF9800)
+                                                  : Color(0xFF007F5C)),
                                     ),
                                   ),
                                   Divider(

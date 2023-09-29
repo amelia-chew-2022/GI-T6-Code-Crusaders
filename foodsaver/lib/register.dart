@@ -129,6 +129,9 @@ class _RegisterState extends State<Register> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Confirm Password';
                           }
+                          if(pwdController.text !=value){
+                            return 'Password mismatch';
+                          }
                           return null;
                         })),
                 Padding(

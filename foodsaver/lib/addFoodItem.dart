@@ -66,6 +66,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
                               )),
+                          
                         ],
                       )),
                   const Divider(

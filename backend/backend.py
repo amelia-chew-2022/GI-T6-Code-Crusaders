@@ -23,6 +23,14 @@ def get_foodItems():
                             "category": "Grains",
                             "id": 1
                         },
+                         {
+                            "foodItem": "Meji Milk",
+                            "expiryDate": "2023-10-01",
+                            "quantity": 500,
+                            "units": "mililitres",
+                            "category": "Milk Product",
+                            "id": 2
+                        },
                         {
                             "foodItem": "HL Milk",
                             "expiryDate": "2023-10-04",

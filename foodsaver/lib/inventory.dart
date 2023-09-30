@@ -7,7 +7,6 @@ import 'login.dart';
 import "dart:convert";
 import 'package:intl/intl.dart';
 import './editFoodItem.dart';
-import './main.dart';
 
 class Food {
   final int foodId;
@@ -89,7 +88,7 @@ class _InventoryState extends State<Inventory> {
         // Today
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(now).inDays <= 1)
+                DateTime.parse(food.expiryDate).difference(now).inDays >= 0)
             .toList();
     }
   }
@@ -494,7 +493,6 @@ class _InventoryState extends State<Inventory> {
                   ),
                 ],
               )))),
-    bottomNavigationBar: CustomBottomNavigationBar()
     );
   }
 }

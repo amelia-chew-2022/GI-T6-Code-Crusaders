@@ -86,7 +86,7 @@ class _InventoryState extends State<Inventory> {
         // Today
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(now).inDays == 0)
+                DateTime.parse(food.expiryDate).difference(now).inDays <= 1)
             .toList();
     }
   }

@@ -36,6 +36,7 @@ class Inventory extends StatefulWidget {
 class _InventoryState extends State<Inventory> {
   String selectedFilter = 'Today'; // Default expiry date
   String selectedCategory = 'All'; // Default category
+  String selectedSort = 'Expiry Date (nearest to furthest)'; // Default sorting option
 
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
@@ -100,6 +101,33 @@ class _InventoryState extends State<Inventory> {
     }
   }
 
+  List<Food> sortInventory(List<Food> foods) {
+    switch (selectedSort) {
+      case 'Expiry Date (nearest to furthest)':
+        return foods
+          ..sort((a, b) =>
+              DateTime.parse(a.expiryDate).compareTo(DateTime.parse(b.expiryDate)));
+      case 'Expiry Date (furthest to nearest)':
+        return foods
+          ..sort((a, b) =>
+              DateTime.parse(b.expiryDate).compareTo(DateTime.parse(a.expiryDate)));
+      case 'Quantity (most to least)':
+        return foods..sort((a, b) => b.quantity.compareTo(a.quantity));
+      case 'Quantity (least to most)':
+        return foods..sort((a, b) => a.quantity.compareTo(b.quantity));
+      case 'Name (A-Z)':
+        return foods..sort((a, b) => a.foodItem.compareTo(b.foodItem));
+      case 'Name (Z-A)':
+        return foods..sort((a, b) => b.foodItem.compareTo(a.foodItem));
+      case 'Category':
+        return foods..sort((a, b) => a.category.compareTo(b.category));
+      case 'Units':
+        return foods..sort((a, b) => a.units.compareTo(b.units));
+      default:
+        return foods;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,10 +176,60 @@ class _InventoryState extends State<Inventory> {
                                 fontWeight: FontWeight.w700,
                               )),
                           Row(children: [
-                            // Filter/Sort Function
+                            // Sort function
                             Container(
                               child: IconButton(
                                 icon: Icon(Icons.sort),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        scrollable: true,
+                                        title: const Text("Sort By: "),
+                                        content: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Form(
+                                            child: Column(
+                                              children: [
+                                                DropdownButton<String>(
+                                                  value: selectedSort,
+                                                  onChanged: (String? newValue) {
+                                                    setState(() {
+                                                      selectedSort = newValue!;
+                                                    });
+                                                    },
+                                                  items: <String>[
+                                                    'Expiry Date (nearest to furthest)',
+                                                    'Expiry Date (furthest to nearest)',
+                                                    'Quantity (highest to lowest)',
+                                                    'Quantity (lowest to highest)',
+                                                    'Name (A-Z)',
+                                                    'Name (Z-A)',
+                                                    'Category',
+                                                    'Units',
+                                                  ].map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+
+                            // Filter function
+                            Container(
+                              child: IconButton(
+                                icon: Icon(Icons.filter_alt),
                                 onPressed: () {
                                   showDialog(
                                     context: context,
@@ -219,6 +297,7 @@ class _InventoryState extends State<Inventory> {
                                 },
                               ),
                             ),
+
                             // Add Food Items
                             Container(
                                 child: IconButton(
@@ -251,11 +330,11 @@ class _InventoryState extends State<Inventory> {
                             ),
                           );
                         } else {
-                          List<Food> filteredFoods = filterByCategory(filterByExpiry(snapshot.data));
+                          List<Food> sortedFoods = sortInventory(filterByCategory(filterByExpiry(snapshot.data)));
                           return ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
-                            itemCount: filteredFoods.length,
+                            itemCount: sortedFoods.length,
                             itemBuilder: (context, index) {
                               return Column(
                                 children: <Widget>[

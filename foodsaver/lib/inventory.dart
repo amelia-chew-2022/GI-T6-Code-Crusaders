@@ -34,7 +34,8 @@ class Inventory extends StatefulWidget {
 }
 
 class _InventoryState extends State<Inventory> {
-  String selectedFilter = 'Today'; // Default filter
+  String selectedFilter = 'Today'; // Default expiry date
+  String selectedCategory = 'All'; // Default category
 
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
@@ -88,6 +89,14 @@ class _InventoryState extends State<Inventory> {
             .where((food) =>
                 DateTime.parse(food.expiryDate).difference(now).inDays <= 1)
             .toList();
+    }
+  }
+
+  List<Food> filterByCategory(List<Food> foods) {
+    if (selectedCategory == 'All') {
+      return foods;
+    } else {
+      return foods.where((food) => food.category == selectedCategory).toList();
     }
   }
 
@@ -155,6 +164,7 @@ class _InventoryState extends State<Inventory> {
                                           child: Form(
                                             child: Column(
                                               children: [
+                                                // Expiry date
                                                 DropdownButton<String>(
                                                   value: selectedFilter,
                                                   onChanged: (String? newValue) {
@@ -168,6 +178,30 @@ class _InventoryState extends State<Inventory> {
                                                     'Next 7 days',
                                                     'Next 14 days',
                                                     'Next 30 days',
+                                                  ].map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                                // Category
+                                                DropdownButton<String>(
+                                                  value: selectedCategory,
+                                                  onChanged: (String? newValue) {
+                                                    setState(() {
+                                                      selectedCategory = newValue!;
+                                                    });
+                                                  },
+                                                  items: <String>[
+                                                    'All',
+                                                    'Grains',
+                                                    'Milk Product',
+                                                    'Fruits',
+                                                    'Nuts',
+                                                    'Vegetables',
+                                                    'Snacks',
+                                                    'Beverages',
                                                   ].map<DropdownMenuItem<String>>((String value) {
                                                     return DropdownMenuItem<String>(
                                                       value: value,
@@ -217,7 +251,7 @@ class _InventoryState extends State<Inventory> {
                             ),
                           );
                         } else {
-                          List<Food> filteredFoods = filterByExpiry(snapshot.data);
+                          List<Food> filteredFoods = filterByCategory(filterByExpiry(snapshot.data));
                           return ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,

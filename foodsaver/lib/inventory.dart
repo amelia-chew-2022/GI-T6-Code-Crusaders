@@ -34,6 +34,8 @@ class Inventory extends StatefulWidget {
 }
 
 class _InventoryState extends State<Inventory> {
+  String selectedFilter = 'Today'; // Default filter
+
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
     final response = await http.get(Uri.parse(url));
@@ -55,6 +57,38 @@ class _InventoryState extends State<Inventory> {
       inventoryList.add(food);
     }
     return inventoryList;
+  }
+
+  List<Food> filterByExpiry(List<Food> foods) {
+    DateTime now = DateTime.now();
+    switch (selectedFilter) {
+      case 'Next 3 days':
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(now).inDays <= 3)
+            .toList();
+      case 'Next 7 days':
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(now).inDays <= 7)
+            .toList();
+      case 'Next 14 days':
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(now).inDays <= 14)
+            .toList();
+      case 'Next 30 days':
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(now).inDays <= 30)
+            .toList();
+      default:
+        // Today
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(now).inDays == 0)
+            .toList();
+    }
   }
 
   @override
@@ -107,32 +141,50 @@ class _InventoryState extends State<Inventory> {
                           Row(children: [
                             // Filter/Sort Function
                             Container(
-                                child: IconButton(
-                              icon: Icon(Icons.sort),
-                              onPressed: () {
-                                showDialog(
+                              child: IconButton(
+                                icon: Icon(Icons.sort),
+                                onPressed: () {
+                                  showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                          scrollable: true,
-                                          title: const Text("Filter By: "),
-                                          content: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Form(
-                                                child: Column(
+                                        scrollable: true,
+                                        title: const Text("Filter By: "),
+                                        content: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Form(
+                                            child: Column(
                                               children: [
-                                                TextFormField(
-                                                  decoration:
-                                                      const InputDecoration(
-                                                          icon:
-                                                              Icon(Icons.sort)),
-                                                )
+                                                DropdownButton<String>(
+                                                  value: selectedFilter,
+                                                  onChanged: (String? newValue) {
+                                                    setState(() {
+                                                      selectedFilter = newValue!;
+                                                    });
+                                                  },
+                                                  items: <String>[
+                                                    'Today',
+                                                    'Next 3 days',
+                                                    'Next 7 days',
+                                                    'Next 14 days',
+                                                    'Next 30 days',
+                                                  ].map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
                                               ],
-                                            )),
-                                          ));
-                                    });
-                              },
-                            )),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                             // Add Food Items
                             Container(
                                 child: IconButton(
@@ -165,10 +217,11 @@ class _InventoryState extends State<Inventory> {
                             ),
                           );
                         } else {
+                          List<Food> filteredFoods = filterByExpiry(snapshot.data);
                           return ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
-                            itemCount: snapshot.data.length,
+                            itemCount: filteredFoods.length,
                             itemBuilder: (context, index) {
                               return Column(
                                 children: <Widget>[

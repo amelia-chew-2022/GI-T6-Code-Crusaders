@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'login.dart';
 import "dart:convert";
 import 'package:intl/intl.dart';
+import './editFoodItem.dart';
 
 class Food {
   final int foodId;
@@ -104,7 +105,7 @@ class _InventoryState extends State<Inventory> {
                                 fontWeight: FontWeight.w700,
                               )),
                           Row(children: [
-                            // Sort Function
+                            // Filter/Sort Function
                             Container(
                                 child: IconButton(
                               icon: Icon(Icons.sort),
@@ -204,11 +205,12 @@ class _InventoryState extends State<Inventory> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>FoodDetails(
-                                                              food: snapshot.data[index].foodItem,
-                                                              quantity:snapshot.data[index].quantity,
-                                                              units: snapshot.data[index].units,
-                                                              expiryDate: snapshot.data[index].expiryDate,
-                                                              category: snapshot.data[index].category)));
+                                                        email: widget.email,
+                                                        food: snapshot.data[index].foodItem,
+                                                        quantity:snapshot.data[index].quantity,
+                                                        units: snapshot.data[index].units,
+                                                        expiryDate: snapshot.data[index].expiryDate,
+                                                        category: snapshot.data[index].category)));
                                             },
                                             icon: const Icon(
                                               Icons.remove_red_eye,
@@ -217,7 +219,16 @@ class _InventoryState extends State<Inventory> {
                                         // Edit Food Details
                                         IconButton(
                                             onPressed: () {
-                                              snapshot.data[index].foodItem;
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>EditFoodItem(
+                                                        email: widget.email,
+                                                        food: snapshot.data[index].foodItem,
+                                                        quantity:snapshot.data[index].quantity,
+                                                        units: snapshot.data[index].units,
+                                                        expiryDate: snapshot.data[index].expiryDate,
+                                                        category: snapshot.data[index].category)));
                                             },
                                             icon: const Icon(
                                               Icons.edit,
@@ -226,7 +237,44 @@ class _InventoryState extends State<Inventory> {
                                         // Delete Food
                                         IconButton(
                                             onPressed: () {
-                                              snapshot.data[index].foodItem;
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AlertDialog(
+                                                      scrollable: true,
+                                                      title: const Text("Delete: "),
+                                                      content: Padding(
+                                                        padding:const EdgeInsets.all(8.0),
+                                                        child: Form(
+                                                            child: Column(
+                                                          children: [
+                                                            Text( "Are you sure you want to delete " + snapshot.data[index].foodItem + "?"),
+                                                            Padding(
+                                                                padding:const EdgeInsets.all( 10),
+                                                                child: ElevatedButton(
+                                                                  onPressed: () {},
+                                                                  child: const Text('Delete'),
+                                                                  style: ElevatedButton.styleFrom(
+                                                                      minimumSize:
+                                                                          const Size.fromHeight(50),
+                                                                      backgroundColor:Color( 0xFFD63434)),
+                                                                )),
+                                                                Padding(
+                                                                padding:const EdgeInsets.all( 10),
+                                                                child: OutlinedButton(
+                                                                  onPressed: () {
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  child: const Text('Cancel', style: TextStyle(color: Color(0xFF000000)),),
+                                                                  style: OutlinedButton.styleFrom(
+                                                                      minimumSize:const Size.fromHeight(50),
+                                                                      backgroundColor:Color(0xFFFFFFFF) ),
+                                                                ))
+                                                          ],
+                                                        )),
+                                                      ));
+                                                });
+
                                             },
                                             icon: const Icon(
                                               Icons.delete,

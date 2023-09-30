@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import './editFoodItem.dart';
 
 class FoodDetails extends StatefulWidget {
   @override
@@ -7,11 +8,14 @@ class FoodDetails extends StatefulWidget {
 
   const FoodDetails(
       {super.key,
+      required this.email,
       required this.food,
       required this.quantity,
       required this.units,
       required this.expiryDate,
       required this.category});
+
+  final String email;
   final String food;
   final int quantity;
   final String units;
@@ -41,8 +45,7 @@ class _DetailsState extends State<FoodDetails> {
                             Row(children: [
                               Container(
                                   child: IconButton(
-                                      icon: Icon(Icons.chevron_left_rounded,
-                                          size: 28),
+                                      icon: Icon(Icons.chevron_left_rounded, size: 28),
                                       onPressed: () {
                                         Navigator.pop(context);
                                       })),
@@ -59,7 +62,16 @@ class _DetailsState extends State<FoodDetails> {
                                   child: IconButton(
                                 icon: Icon(Icons.edit),
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => EditFoodItem(
+                                              email: widget.email,
+                                              food: widget.food,
+                                              quantity: widget.quantity,
+                                              units: widget.units,
+                                              expiryDate: widget.expiryDate,
+                                              category: widget.category)));
                                 },
                               )),
                               // Delete Function
@@ -72,19 +84,37 @@ class _DetailsState extends State<FoodDetails> {
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                             scrollable: true,
-                                            title: const Text("Filter By: "),
+                                            title: const Text("Delete: "),
                                             content: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(8.0),
                                               child: Form(
                                                   child: Column(
                                                 children: [
-                                                  TextFormField(
-                                                    decoration:
-                                                        const InputDecoration(
-                                                            icon: Icon(
-                                                                Icons.sort)),
-                                                  )
+                                                  Text("Are you sure you want to delete " +  widget.food + "?"),
+                                                  Padding(
+                                                      padding: const EdgeInsets.all(10),
+                                                      child: ElevatedButton(
+                                                        onPressed: () {},
+                                                        child: const Text('Delete'),
+                                                        style: ElevatedButton.styleFrom(
+                                                            minimumSize:const Size.fromHeight(50),
+                                                            backgroundColor:Color( 0xFFD63434)))),
+                                                  Padding(
+                                                      padding:
+                                                          const EdgeInsets.all( 10),
+                                                      child: OutlinedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop( context);
+                                                        },
+                                                        child: const Text(
+                                                          'Cancel',
+                                                          style: TextStyle(color: Color(0xFF000000)),
+                                                        ),
+                                                        style: OutlinedButton.styleFrom(
+                                                            minimumSize: const Size.fromHeight(50),
+                                                            backgroundColor:
+                                                                Color( 0xFFFFFFFF)),
+                                                      ))
                                                 ],
                                               )),
                                             ));

@@ -128,6 +128,17 @@ class _InventoryState extends State<Inventory> {
     }
   }
 
+  List<Food> filterAndSort(List<Food> foods) {
+    // First filter by expiry date
+    List<Food> filteredFoods = filterByExpiry(foods);
+
+    // Then filter by category
+    List<Food> filteredAndSortedFoods = filterByCategory(filteredFoods);
+
+    // Finally, sort the filtered and sorted list
+    return sortInventory(filteredAndSortedFoods);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -330,7 +341,7 @@ class _InventoryState extends State<Inventory> {
                             ),
                           );
                         } else {
-                          List<Food> sortedFoods = sortInventory(filterByCategory(filterByExpiry(snapshot.data)));
+                          List<Food> sortedFoods = filterAndSort(snapshot.data);
                           return ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,

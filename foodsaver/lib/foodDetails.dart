@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import './editFoodItem.dart';
+import './main.dart';
 
 class FoodDetails extends StatefulWidget {
   @override
@@ -180,6 +181,9 @@ class _DetailsState extends State<FoodDetails> {
                           ],
                         ))
                   ]),
-            )));
+            )
+            ),
+            bottomNavigationBar: CustomBottomNavigationBar()
+            );
   }
 }

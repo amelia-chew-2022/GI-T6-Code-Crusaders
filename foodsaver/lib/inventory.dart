@@ -7,6 +7,7 @@ import 'login.dart';
 import "dart:convert";
 import 'package:intl/intl.dart';
 import './editFoodItem.dart';
+import './main.dart';
 
 class Food {
   final int foodId;
@@ -493,6 +494,7 @@ class _InventoryState extends State<Inventory> {
                   ),
                 ],
               )))),
+    bottomNavigationBar: CustomBottomNavigationBar()
     );
   }
 }

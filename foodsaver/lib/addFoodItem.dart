@@ -18,7 +18,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
   TextEditingController quantityeController = TextEditingController();
 
   String unit = 'grams';
-  var units = ['grams', 'millimetre', 'litres', 'loaf', 'kilograms'];
+  var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
 
   String cat = 'Grains';
   var cats = [

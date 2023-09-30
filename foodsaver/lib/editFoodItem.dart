@@ -42,7 +42,7 @@ class _EditFoodItemState extends State<EditFoodItem> {
     TextEditingController nameController = TextEditingController(text: widget.food);
     TextEditingController quantityController =TextEditingController(text: widget.quantity.toString());
     String unit = widget.units;
-    var units = ['grams', 'millimetre', 'litres', 'loaf', 'kilograms'];
+    var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
 
     String cat = widget.category;
     var cats = [

@@ -47,7 +47,7 @@ def get_foodItems():
                             "foodItem": "Meji Milk",
                             "expiryDate": "2023-10-29",
                             "quantity": 500,
-                            "units": "mililitres",
+                            "units": "milliliters",
                             "category": "Milk Product",
                             "id": 2
                         },
@@ -63,7 +63,7 @@ def get_foodItems():
                             "foodItem": "HL Milk",
                             "expiryDate": "2023-10-02",
                             "quantity": 500,
-                            "units": "mililitres",
+                            "units": "milliliters",
                             "category": "Milk Product",
                             "id": 2
                         },
@@ -71,7 +71,7 @@ def get_foodItems():
                             "foodItem": "Meji Milk",
                             "expiryDate": "2023-10-19",
                             "quantity": 500,
-                            "units": "mililitres",
+                            "units": "milliliters",
                             "category": "Milk Product",
                             "id": 2
                         },

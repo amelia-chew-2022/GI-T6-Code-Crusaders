@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
-import './widgets/image_upload_widget.dart';
+import './widgets/image_upload.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -38,6 +39,19 @@ class _AddFoodItemState extends State<AddFoodItem> {
     expireDateController.text = "";
   }
 
+  XFile? image;
+
+  final ImagePicker picker = ImagePicker();
+
+  //we can upload image from camera or from gallery based on parameter
+  Future getImage(ImageSource media) async {
+    var img = await picker.pickImage(source: media);
+
+    setState(() {
+      image = img;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +64,6 @@ class _AddFoodItemState extends State<AddFoodItem> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ImageUploadWidget(),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 16),
@@ -208,7 +221,12 @@ class _AddFoodItemState extends State<AddFoodItem> {
                                       cat = newValue!;
                                     });
                                   })))),
-                  ImageUploadWidget(),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 16),
+                      child: Center(
+                        child: ImageUploadWidget(),
+                      )),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 16),

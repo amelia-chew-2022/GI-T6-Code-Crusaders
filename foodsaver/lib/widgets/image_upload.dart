@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class ImageUploadWidget extends StatefulWidget {
   @override
@@ -8,34 +8,94 @@ class ImageUploadWidget extends StatefulWidget {
 }
 
 class _ImageUploadWidgetState extends State<ImageUploadWidget> {
-  File? _image;
+  XFile? image;
+  final ImagePicker picker = ImagePicker();
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await ImagePicker().pickImage(source: source);
+  Future getImage(ImageSource media) async {
+    var img = await picker.pickImage(source: media);
 
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+    setState(() {
+      image = img;
+    });
+  }
+
+  void showImageSourceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text('Please choose media to select'),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 6,
+            child: Column(
+              children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.gallery);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.image),
+                        Text('From Gallery'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16), // Add space between the buttons
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.camera);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.camera),
+                        Text('From Camera'),
+                      ],
+                    ),
+                  ),
+                ],
+
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[
-        if (_image != null)
-          Image.file(
-            _image!,
-            width: 150,
-            height: 150,
-          ),
+      children: [
         ElevatedButton(
           onPressed: () {
-            _pickImage(ImageSource.camera); // Use ImageSource.gallery for gallery
+            showImageSourceDialog(context);
           },
-          child: Text("Pick Image"),
+          child: Text('Upload Photo'),
         ),
+        SizedBox(
+          height: 10,
+        ),
+        image != null
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(
+                    File(image!.path),
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
+                  ),
+                ),
+              )
+            : Text(
+                "No Image",
+                style: TextStyle(fontSize: 20),
+              ),
       ],
     );
   }

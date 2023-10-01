@@ -7,6 +7,10 @@ import 'login.dart';
 import "dart:convert";
 import 'package:intl/intl.dart';
 import './editFoodItem.dart';
+import 'dart:developer';
+import './widgets/welcome_header.dart';
+import './widgets/sort_dialog.dart';
+import './widgets/filter_dialog.dart';
 
 class Food {
   final int foodId;
@@ -36,7 +40,8 @@ class Inventory extends StatefulWidget {
 class _InventoryState extends State<Inventory> {
   String selectedFilter = 'Today'; // Default expiry date
   String selectedCategory = 'All'; // Default category
-  String selectedSort = 'Expiry Date (nearest to furthest)'; // Default sorting option
+  String selectedSort =
+      'Expiry Date (nearest to furthest)'; // Default sorting option
 
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
@@ -46,6 +51,10 @@ class _InventoryState extends State<Inventory> {
 
     //Creating a list to store input data;
     List<Food> inventoryList = [];
+
+    print("responseData");
+    print(responseData);
+
     for (var indvFood in responseData["data"]) {
       Food food = Food(
           foodId: indvFood["id"],
@@ -105,12 +114,12 @@ class _InventoryState extends State<Inventory> {
     switch (selectedSort) {
       case 'Expiry Date (nearest to furthest)':
         return foods
-          ..sort((a, b) =>
-              DateTime.parse(a.expiryDate).compareTo(DateTime.parse(b.expiryDate)));
+          ..sort((a, b) => DateTime.parse(a.expiryDate)
+              .compareTo(DateTime.parse(b.expiryDate)));
       case 'Expiry Date (furthest to nearest)':
         return foods
-          ..sort((a, b) =>
-              DateTime.parse(b.expiryDate).compareTo(DateTime.parse(a.expiryDate)));
+          ..sort((a, b) => DateTime.parse(b.expiryDate)
+              .compareTo(DateTime.parse(a.expiryDate)));
       case 'Quantity (most to least)':
         return foods..sort((a, b) => b.quantity.compareTo(a.quantity));
       case 'Quantity (least to most)':
@@ -139,6 +148,32 @@ class _InventoryState extends State<Inventory> {
     return sortInventory(filteredAndSortedFoods);
   }
 
+  Widget _buildSortButton() {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.sort),
+        onPressed: _showSortDialog,
+      ),
+    );
+  }
+
+  void _showSortDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SortDialog(
+          selectedSort: selectedSort,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedSort = newValue ?? '';
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,30 +185,15 @@ class _InventoryState extends State<Inventory> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Welcome \n" + widget.email,
-                              style: const TextStyle(
-                                color: Color(0xFF003B2B),
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                              )),
-                          Container(
-                              child: IconButton(
-                            icon: Icon(Icons.logout),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Login()));
-                            },
-                          ))
-                        ],
-                      )),
+                  WelcomeHeader(
+                    email: widget.email,
+                    onLogout: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Login()),
+                      );
+                    },
+                  ),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
@@ -188,127 +208,22 @@ class _InventoryState extends State<Inventory> {
                               )),
                           Row(children: [
                             // Sort function
-                            Container(
-                              child: IconButton(
-                                icon: Icon(Icons.sort),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        scrollable: true,
-                                        title: const Text("Sort By: "),
-                                        content: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Form(
-                                            child: Column(
-                                              children: [
-                                                DropdownButton<String>(
-                                                  value: selectedSort,
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      selectedSort = newValue!;
-                                                    });
-                                                    },
-                                                  items: <String>[
-                                                    'Expiry Date (nearest to furthest)',
-                                                    'Expiry Date (furthest to nearest)',
-                                                    'Quantity (highest to lowest)',
-                                                    'Quantity (lowest to highest)',
-                                                    'Name (A-Z)',
-                                                    'Name (Z-A)',
-                                                    'Category',
-                                                    'Units',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-
+                            _buildSortButton(),
                             // Filter function
-                            Container(
-                              child: IconButton(
-                                icon: Icon(Icons.filter_alt),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        scrollable: true,
-                                        title: const Text("Filter By: "),
-                                        content: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Form(
-                                            child: Column(
-                                              children: [
-                                                // Expiry date
-                                                DropdownButton<String>(
-                                                  value: selectedFilter,
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      selectedFilter = newValue!;
-                                                    });
-                                                  },
-                                                  items: <String>[
-                                                    'Today',
-                                                    'Next 3 days',
-                                                    'Next 7 days',
-                                                    'Next 14 days',
-                                                    'Next 30 days',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                                // Category
-                                                DropdownButton<String>(
-                                                  value: selectedCategory,
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      selectedCategory = newValue!;
-                                                    });
-                                                  },
-                                                  items: <String>[
-                                                    'All',
-                                                    'Grains',
-                                                    'Milk Product',
-                                                    'Fruits',
-                                                    'Nuts',
-                                                    'Vegetables',
-                                                    'Snacks',
-                                                    'Beverages',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                            FilterDialog(
+                              selectedFilter: selectedFilter,
+                              selectedCategory: selectedCategory,
+                              onFilterChanged: (String? newValue) {
+                                setState(() {
+                                  selectedFilter = newValue ?? 'Today';
+                                });
+                              },
+                              onCategoryChanged: (String? newValue) {
+                                setState(() {
+                                  selectedCategory = newValue ?? 'All';
+                                });
+                              },
                             ),
-
                             // Add Food Items
                             Container(
                                 child: IconButton(
@@ -381,13 +296,25 @@ class _InventoryState extends State<Inventory> {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>FoodDetails(
-                                                        email: widget.email,
-                                                        food: snapshot.data[index].foodItem,
-                                                        quantity:snapshot.data[index].quantity,
-                                                        units: snapshot.data[index].units,
-                                                        expiryDate: snapshot.data[index].expiryDate,
-                                                        category: snapshot.data[index].category)));
+                                                      builder: (context) =>
+                                                          FoodDetails(
+                                                              email: widget
+                                                                  .email,
+                                                              food: snapshot
+                                                                  .data[index]
+                                                                  .foodItem,
+                                                              quantity: snapshot
+                                                                  .data[index]
+                                                                  .quantity,
+                                                              units: snapshot
+                                                                  .data[index]
+                                                                  .units,
+                                                              expiryDate: snapshot
+                                                                  .data[index]
+                                                                  .expiryDate,
+                                                              category: snapshot
+                                                                  .data[index]
+                                                                  .category)));
                                             },
                                             icon: const Icon(
                                               Icons.remove_red_eye,
@@ -399,13 +326,25 @@ class _InventoryState extends State<Inventory> {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>EditFoodItem(
-                                                        email: widget.email,
-                                                        food: snapshot.data[index].foodItem,
-                                                        quantity:snapshot.data[index].quantity,
-                                                        units: snapshot.data[index].units,
-                                                        expiryDate: snapshot.data[index].expiryDate,
-                                                        category: snapshot.data[index].category)));
+                                                      builder: (context) =>
+                                                          EditFoodItem(
+                                                              email:
+                                                                  widget.email,
+                                                              food: snapshot
+                                                                  .data[index]
+                                                                  .foodItem,
+                                                              quantity: snapshot
+                                                                  .data[index]
+                                                                  .quantity,
+                                                              units: snapshot
+                                                                  .data[index]
+                                                                  .units,
+                                                              expiryDate: snapshot
+                                                                  .data[index]
+                                                                  .expiryDate,
+                                                              category: snapshot
+                                                                  .data[index]
+                                                                  .category)));
                                             },
                                             icon: const Icon(
                                               Icons.edit,
@@ -415,43 +354,74 @@ class _InventoryState extends State<Inventory> {
                                         IconButton(
                                             onPressed: () {
                                               showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                      scrollable: true,
-                                                      title: const Text("Delete: "),
-                                                      content: Padding(
-                                                        padding:const EdgeInsets.all(8.0),
-                                                        child: Form(
-                                                            child: Column(
-                                                          children: [
-                                                            Text( "Are you sure you want to delete " + snapshot.data[index].foodItem + "?"),
-                                                            Padding(
-                                                                padding:const EdgeInsets.all( 10),
-                                                                child: ElevatedButton(
-                                                                  onPressed: () {},
-                                                                  child: const Text('Delete'),
-                                                                  style: ElevatedButton.styleFrom(
-                                                                      minimumSize:
-                                                                          const Size.fromHeight(50),
-                                                                      backgroundColor:Color( 0xFFD63434)),
-                                                                )),
-                                                                Padding(
-                                                                padding:const EdgeInsets.all( 10),
-                                                                child: OutlinedButton(
-                                                                  onPressed: () {
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: const Text('Cancel', style: TextStyle(color: Color(0xFF000000)),),
-                                                                  style: OutlinedButton.styleFrom(
-                                                                      minimumSize:const Size.fromHeight(50),
-                                                                      backgroundColor:Color(0xFFFFFFFF) ),
-                                                                ))
-                                                          ],
-                                                        )),
-                                                      ));
-                                                });
-
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                        scrollable: true,
+                                                        title: const Text(
+                                                            "Delete: "),
+                                                        content: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Form(
+                                                              child: Column(
+                                                            children: [
+                                                              Text("Are you sure you want to delete " +
+                                                                  snapshot
+                                                                      .data[
+                                                                          index]
+                                                                      .foodItem +
+                                                                  "?"),
+                                                              Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          10),
+                                                                  child:
+                                                                      ElevatedButton(
+                                                                    onPressed:
+                                                                        () {},
+                                                                    child: const Text(
+                                                                        'Delete'),
+                                                                    style: ElevatedButton.styleFrom(
+                                                                        minimumSize: const Size
+                                                                            .fromHeight(
+                                                                            50),
+                                                                        backgroundColor:
+                                                                            Color(0xFFD63434)),
+                                                                  )),
+                                                              Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          10),
+                                                                  child:
+                                                                      OutlinedButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                    child:
+                                                                        const Text(
+                                                                      'Cancel',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Color(0xFF000000)),
+                                                                    ),
+                                                                    style: OutlinedButton.styleFrom(
+                                                                        minimumSize: const Size
+                                                                            .fromHeight(
+                                                                            50),
+                                                                        backgroundColor:
+                                                                            Color(0xFFFFFFFF)),
+                                                                  ))
+                                                            ],
+                                                          )),
+                                                        ));
+                                                  });
                                             },
                                             icon: const Icon(
                                               Icons.delete,

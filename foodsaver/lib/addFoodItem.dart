@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
+import './widgets/image_upload.dart';
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -206,6 +207,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                                       cat = newValue!;
                                     });
                                   })))),
+                  ImageUploadWidget(),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 16),

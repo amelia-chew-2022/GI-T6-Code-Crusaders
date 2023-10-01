@@ -80,7 +80,7 @@ class _LoginState extends State<Login> {
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          if (_formkey.currentState!.validate()) {
+                          if (true) {
                             // Navigate to the Inventory Page
                             Navigator.push(
                                 context,

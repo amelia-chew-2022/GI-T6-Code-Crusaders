@@ -13,7 +13,7 @@ import './widgets/sort_dialog.dart';
 import './widgets/filter_dialog.dart';
 
 class Food {
-  final int foodId;
+  final String foodId;
   final String foodItem;
   final String expiryDate;
   final int quantity;
@@ -57,11 +57,11 @@ class _InventoryState extends State<Inventory> {
 
     for (var indvFood in responseData["data"]) {
       Food food = Food(
-          foodId: indvFood["id"],
-          foodItem: indvFood["foodItem"],
+          foodId: indvFood["foodID"],
+          foodItem: indvFood["name"],
           expiryDate: indvFood["expiryDate"],
-          quantity: indvFood["quantity"],
-          units: indvFood["units"],
+          quantity: indvFood["qty"],
+          units: indvFood["unit"],
           category: indvFood["category"]);
 
       //Adding food to the list.

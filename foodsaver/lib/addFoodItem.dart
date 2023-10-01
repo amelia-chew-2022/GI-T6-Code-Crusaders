@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
-import './widgets/image_upload.dart';
+import './widgets/image_upload_widget.dart';
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -50,6 +50,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  ImageUploadWidget(),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 16),

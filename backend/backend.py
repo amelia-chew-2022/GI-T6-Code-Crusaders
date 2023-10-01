@@ -14,15 +14,7 @@ db = firestore.client()
 
 app = Flask(__name__)
 
-#to read data 
-# @app.get('/test')
-# def test():
-#     users_ref = db.collection("users")
-#     docs = users_ref.stream()
-
-#     for doc in docs:
-#         print(f"{doc.id} => {doc.to_dict()}")
-
+#register users
 @app.post('/register')
 def register():
     data = request.get_json()
@@ -31,53 +23,42 @@ def register():
     pwd  = data["pwd"]
     return {"message": "Added", "code": 201, "data": data}, 201
 
+# @app.get('/login')
+# def checkLogin():
+#     users_ref = db.collection("userAccount")
+#     docs = users_ref.stream()
+#     data = []
+#     for doc in docs:
+#         item = {
+#             "user_id" : doc.id,
+#             "name": doc.to_dict()
+#         }
+#         data.append(item)
+
+#     return jsonify(data)
+
+
 @app.get('/allFoodItem')
-def get_foodItems():
+def get_food():
+    users_ref = db.collection("userAccount").document("user01") #user need to be dynamic
+    food_ref = users_ref.collection("foods")
+    
+    docs = food_ref.stream()
     response = {}
-    response["data"] = [
-                        {
-                            "foodItem": "Bread",
-                            "expiryDate": "2023-09-30",
-                            "quantity": 2,
-                            "units": "loaf",
-                            "category": "Grains",
-                            "id": 1
-                        },
-                         {
-                            "foodItem": "Meji Milk",
-                            "expiryDate": "2023-10-29",
-                            "quantity": 500,
-                            "units": "milliliters",
-                            "category": "Milk Product",
-                            "id": 2
-                        },
-                        {
-                            "foodItem": "Bread",
-                            "expiryDate": "2023-09-30",
-                            "quantity": 2,
-                            "units": "loaf",
-                            "category": "Grains",
-                            "id": 1
-                        },
-                        {
-                            "foodItem": "HL Milk",
-                            "expiryDate": "2023-10-02",
-                            "quantity": 500,
-                            "units": "milliliters",
-                            "category": "Milk Product",
-                            "id": 2
-                        },
-                        {
-                            "foodItem": "Meji Milk",
-                            "expiryDate": "2023-10-19",
-                            "quantity": 500,
-                            "units": "milliliters",
-                            "category": "Milk Product",
-                            "id": 2
-                        },
-                    ]
-    response["message"] = "success"
-    response["code"] = 200
+    data = []
+    for document in docs:
+        food = {
+            "name" : document.get('name'),
+            "category" : document.get('category'),
+            "expiryDate" : document.get('expiryDate'), #off by 1 day, ignore for now
+            "qty" : document.get('qty'),
+            "unit" : document.get('unit')
+        }
+        data.append(food)
+
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
     
     return response
 

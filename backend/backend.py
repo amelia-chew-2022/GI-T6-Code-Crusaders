@@ -63,5 +63,33 @@ def get_food():
     
     return response
 
+@app.get('/getFood')
+def getFood():
+    foodID = request.args.get('foodID') #send foodID
+    users_ref = db.collection("userAccount").document("user01")
+    food_ref = users_ref.collection("foods").document(foodID)
+    document = food_ref.get()
+
+    response = {}
+    data = []
+
+  
+
+    food = {
+            "foodID" : document.id,
+            "name" : document.get('name'),
+            "category" : document.get('category'),
+            "expiryDate" : document.get('expiryDate'), 
+            "qty" : document.get('qty'),
+            "unit" : document.get('unit')
+        }
+    data.append(food)
+
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
+
+    return response
+
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

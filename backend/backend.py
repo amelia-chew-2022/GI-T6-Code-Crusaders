@@ -48,9 +48,10 @@ def get_food():
     data = []
     for document in docs:
         food = {
+            "foodID" : document.id,
             "name" : document.get('name'),
             "category" : document.get('category'),
-            "expiryDate" : document.get('expiryDate'), #off by 1 day, ignore for now
+            "expiryDate" : document.get('expiryDate'), 
             "qty" : document.get('qty'),
             "unit" : document.get('unit')
         }

@@ -32,33 +32,32 @@ class _ImageUploadWidgetState extends State<ImageUploadWidget> {
             height: MediaQuery.of(context).size.height / 6,
             child: Column(
               children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      getImage(ImageSource.gallery);
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.image),
-                        Text('From Gallery'),
-                      ],
-                    ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    getImage(ImageSource.gallery);
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.image),
+                      Text('From Gallery'),
+                    ],
                   ),
-                  SizedBox(height: 16), // Add space between the buttons
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      getImage(ImageSource.camera);
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.camera),
-                        Text('From Camera'),
-                      ],
-                    ),
+                ),
+                SizedBox(height: 16), // Add space between the buttons
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    getImage(ImageSource.camera);
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera),
+                      Text('From Camera'),
+                    ],
                   ),
-                ],
-
+                ),
+              ],
             ),
           ),
         );
@@ -80,15 +79,14 @@ class _ImageUploadWidgetState extends State<ImageUploadWidget> {
           height: 10,
         ),
         image != null
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+            ? Container(
+                width: 200, // Specify the desired width
+                height: 200, // Specify the desired height
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.file(
                     File(image!.path),
                     fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width,
-                    height: 300,
                   ),
                 ),
               )

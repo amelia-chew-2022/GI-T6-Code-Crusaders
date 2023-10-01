@@ -121,5 +121,42 @@ def randomID():
     random_id_str = "food" + str(random_id)
     return random_id_str
 
+@app.put('/updateItem/<foodID>') #url should look like '/updateItem/food01'
+def update(foodID):
+    #userID = request.args.get('userID')
+    userID = "user01"
+    form_data = request.get_json()
+
+    users_ref = db.collection("userAccount").document(userID)
+    food_ref = users_ref.collection("foods").document(foodID)
+    
+    data = {
+        "name" : form_data.get('name'),
+        "category" : form_data.get('category'),
+        "expiryDate" : form_data.get('expiryDate'), 
+        "qty" : form_data.get('qty'),
+        "unit" : form_data.get('unit')
+    }
+
+    food_ref.update(data)
+
+    response = {} 
+    response['message'] = "success"
+    response['code'] = 200
+    return response
+
+@app.delete('/delete/<foodID>') #url should look like '/delete/food01'
+def delete(foodID):
+    userID = "user01"
+    users_ref = db.collection("userAccount").document(userID)
+    food_ref = users_ref.collection("foods").document(foodID)
+
+    food_ref.delete()
+
+    response = {} 
+    response['message'] = "success"
+    response['code'] = 204
+    return response
+    
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

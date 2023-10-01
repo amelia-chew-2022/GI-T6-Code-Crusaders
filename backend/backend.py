@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import json
+import random
 
 import firebase_admin
 from firebase_admin import credentials
@@ -65,15 +66,13 @@ def get_food():
 
 @app.get('/getFood')
 def getFood():
-    foodID = request.args.get('foodID') #send foodID
+    foodID = request.args.get('foodID') #send foodID, using this route ('getFood?foodID=${foodID})
     users_ref = db.collection("userAccount").document("user01")
     food_ref = users_ref.collection("foods").document(foodID)
     document = food_ref.get()
 
     response = {}
     data = []
-
-  
 
     food = {
             "foodID" : document.id,
@@ -90,6 +89,37 @@ def getFood():
     response['code'] = 200
 
     return response
+
+@app.post('/addItem')
+def addItem():
+    #userID = request.args.get('foodID')
+    userID = "user01"
+    form_data = request.get_json()
+    foodID = randomID()
+
+    users_ref = db.collection("userAccount").document("user01")
+    food_ref = users_ref.collection("foods").document(foodID)
+    
+    data = {
+        "name" : form_data.get('name'),
+        "category" : form_data.get('category'),
+        "expiryDate" : form_data.get('expiryDate'), 
+        "qty" : form_data.get('qty'),
+        "unit" : form_data.get('unit')
+    }
+
+    food_ref.set(data)
+
+    response = {} 
+    response['message'] = "success"
+    response['code'] = 201
+    return response
+
+def randomID():
+    random_id = random.randint(1, 9999)
+    random_id = '{:04d}'.format(random_id)
+    random_id_str = "food" + str(random_id)
+    return random_id_str
 
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

@@ -35,8 +35,8 @@ class Inventory extends StatefulWidget {
 }
 
 class _InventoryState extends State<Inventory> {
-  String selectedFilter = 'All'; // Default expiry date
-  String selectedCategory = 'All'; // Default category
+  String selectedFilter = 'Expiry Date'; // Default expiry date
+  String selectedCategory = 'Category'; // Default category
   String selectedSort = 'Expiry Date (nearest to furthest)'; // Default sorting option
 
   Future<List<Food>> getRequest() async {
@@ -54,7 +54,8 @@ class _InventoryState extends State<Inventory> {
           expiryDate: indvFood["expiryDate"],
           quantity: indvFood["qty"],
           units: indvFood["unit"],
-          category: indvFood["category"]);
+          category: indvFood["category"]),
+          imageURL: indvFood["imageURL"];
 
       //Adding food to the list.
       inventoryList.add(food);
@@ -187,7 +188,7 @@ class _InventoryState extends State<Inventory> {
   }
 
   List<Food> filterByCategory(List<Food> foods) {
-    if (selectedCategory == 'All') {
+    if (selectedCategory == 'Category') { //all
       return foods;
     } else {
       return foods.where((food) => food.category == selectedCategory).toList();
@@ -340,7 +341,7 @@ class _InventoryState extends State<Inventory> {
                                                     });
                                                   },
                                                   items: <String>[
-                                                    'All',
+                                                    'Expiry Date',
                                                     'Today',
                                                     'Next 3 days',
                                                     'Next 7 days',
@@ -362,7 +363,7 @@ class _InventoryState extends State<Inventory> {
                                                     });
                                                   },
                                                   items: <String>[
-                                                    'All',
+                                                    'Category',
                                                     'Grains',
                                                     'Milk Product',
                                                     'Fruits',

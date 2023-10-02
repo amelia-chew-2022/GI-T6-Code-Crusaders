@@ -41,6 +41,61 @@ def register():
 
 #     return jsonify(data)
 
+@app.route('/addItem', methods=['POST'])
+def addItem():
+    try:
+        # Extract data from the request
+        form_data = request.form.to_dict()
+        name = form_data.get('name')
+        category = form_data.get('category')
+        expiryDate = form_data.get('expiryDate')
+        qty = int(form_data.get('qty'))
+        unit = form_data.get('unit')
+
+        # Generate a random food ID
+        foodID = randomID()
+
+        # Upload the image to Firebase Storage
+        image = request.files.get('image')
+        if image:
+            image_filename = f"{foodID}.jpg"
+            bucket = storage.bucket()
+            blob = bucket.blob(image_filename)
+            blob.upload_from_file(image)
+
+            # Get the public URL of the uploaded image
+            image_url = blob.public_url
+        else:
+            image_url = None
+
+        # Post the data to Firestore
+        users_ref = db.collection("userAccount").document("user01")
+        food_ref = users_ref.collection("foods").document(foodID)
+
+        data = {
+            "name": name,
+            "category": category,
+            "expiryDate": expiryDate,
+            "qty": qty,
+            "unit": unit,
+            "image_url": image_url  # Add the image URL to the data
+        }
+
+        food_ref.set(data)
+
+        response = {
+            'message': "success",
+            'code': 201
+        }
+        return jsonify(response), 201
+    except Exception as e:
+        print(e)
+        response = {
+            'success': False,
+            'message': str(e)
+        }
+        return jsonify(response), 500
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     try:
@@ -63,31 +118,46 @@ def upload_image():
     except Exception as e:
         return {'success': False, 'message': str(e)}, 500
 
+# Function to get image URL for a given foodID
+def get_image_url(food_id):
+    try:
+        image_filename = f"{food_id}.jpg"
+        bucket = storage.bucket()
+        blob = bucket.blob(image_filename)  # Adjust the path as needed
+        return blob.generate_signed_url(expiration=3600)  # Expiration time in seconds
+    except Exception as e:
+        print(f"Error retrieving image URL for foodID {food_id}: {str(e)}")
+        return None
 
 @app.get('/allFoodItem')
 def get_food():
     users_ref = db.collection("userAccount").document("user01") #user need to be dynamic
     food_ref = users_ref.collection("foods")
     
-    docs = food_ref.stream()
-    response = {}
-    data = []
-    for document in docs:
-        food = {
-            "foodID" : document.id,
-            "name" : document.get('name'),
-            "category" : document.get('category'),
-            "expiryDate" : document.get('expiryDate'), 
-            "qty" : document.get('qty'),
-            "unit" : document.get('unit')
-        }
-        data.append(food)
+    try: 
+        docs = food_ref.stream()
+        response = {}
+        data = []
+        image_url = get_image_url(document.id)
+        for document in docs:
+            food = {
+                "foodID" : document.id,
+                "name" : document.get('name'),
+                "category" : document.get('category'),
+                "expiryDate" : document.get('expiryDate'), 
+                "qty" : int(document.get('qty')),
+                "unit" : document.get('unit'),
+                "imageURL": image_url
+            }
+            data.append(food)
 
-    response['data'] = data
-    response['message'] = "success"
-    response['code'] = 200
-    
-    return response
+        response['data'] = data
+        response['message'] = "success"
+        response['code'] = 200
+        
+        return response
+    except Exception as e:
+        print("Exception:", e)
 
 @app.get('/getFood')
 def getFood():
@@ -113,31 +183,6 @@ def getFood():
     response['message'] = "success"
     response['code'] = 200
 
-    return response
-
-@app.post('/addItem')
-def addItem():
-    #userID = request.args.get('foodID')
-    userID = "user01"
-    form_data = request.get_json()
-    foodID = randomID()
-
-    users_ref = db.collection("userAccount").document("user01")
-    food_ref = users_ref.collection("foods").document(foodID)
-    
-    data = {
-        "name" : form_data.get('name'),
-        "category" : form_data.get('category'),
-        "expiryDate" : form_data.get('expiryDate'), 
-        "qty" : int(form_data.get('qty')),
-        "unit" : form_data.get('unit')
-    }
-
-    food_ref.set(data)
-
-    response = {} 
-    response['message'] = "success"
-    response['code'] = 201
     return response
 
 def randomID():

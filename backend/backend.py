@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import json
 import random
+from datetime import datetime, date, timedelta
 
 import firebase_admin
 from firebase_admin import credentials
@@ -156,6 +157,38 @@ def delete(foodID):
     response = {} 
     response['message'] = "success"
     response['code'] = 204
+    return response
+
+@app.get('/filterByExpiry/<range>') #url should look like '/filterByExpiry/3' <range> => 3 : next 3 days
+def filterByExpiry(range):
+    userID = "user01"
+    users_ref = db.collection("userAccount").document(userID)
+    food_ref = users_ref.collection("foods")
+    docs = food_ref.stream()
+    response = {}
+    data = []
+    current_date = date.today() #1 oct
+    range = int(range)
+    for document in docs:
+        date_str = document.get('expiryDate')
+        expiry = datetime.strptime(date_str, '%Y-%m-%d').date()
+        future_date = current_date + timedelta(days=3)
+        print(future_date)
+        print(expiry)
+        if (expiry <= future_date):
+            food = {
+            "foodID" : document.id,
+            "name" : document.get('name'),
+            "category" : document.get('category'),
+            "expiryDate" : document.get('expiryDate'), 
+            "qty" : document.get('qty'),
+            "unit" : document.get('unit')
+            }
+            data.append(food)
+
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
     return response
     
 if __name__ == '__main__':

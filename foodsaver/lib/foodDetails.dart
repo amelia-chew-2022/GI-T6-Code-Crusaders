@@ -17,7 +17,10 @@ class FoodDetails extends StatefulWidget {
       required this.quantity,
       required this.units,
       required this.expiryDate,
-      required this.category});
+      required this.category,
+      required this.refreshCallback});
+
+  final Function() refreshCallback;
 
   final String email;
   final String foodId;
@@ -38,6 +41,8 @@ class _DetailsState extends State<FoodDetails> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+
+    widget.refreshCallback();
 
     return response;
   }
@@ -172,7 +177,9 @@ class _DetailsState extends State<FoodDetails> {
                                               quantity: widget.quantity,
                                               units: widget.units,
                                               expiryDate: widget.expiryDate,
-                                              category: widget.category)));
+                                              category: widget.category,
+                                              refreshCallback:
+                                                  widget.refreshCallback)));
                                 },
                               )),
                               // Delete Function

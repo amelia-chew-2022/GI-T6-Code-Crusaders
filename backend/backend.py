@@ -292,6 +292,19 @@ def sortByAtoZ(sort):
     response['code'] = 200
     return response
 
+@app.get('/categoryDDL')
+def getCategoryDDL():
+    category = db.collection("category").stream()
+    data = []
+    response = {}
+    print(category)
+    for document in category:
+        data.append(document.get('name'))
+
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
+    return response
 
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

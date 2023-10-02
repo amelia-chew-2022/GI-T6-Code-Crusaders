@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import json
 import random
 from datetime import datetime, date, timedelta
+from google.cloud import firestore
 
 import firebase_admin
 from firebase_admin import credentials, storage
@@ -237,8 +238,32 @@ def filterByCategory(category):
     response['code'] = 200
     return response
 
-
-
+@app.get('/sortByExpiry/<sort>')  #url should look like '/sortByExpiry/ASC' or '/sortByExpiry/DESC'
+def sortByExpiry(sort):
+    userID = "user01"
+    users_ref = db.collection("userAccount").document(userID)
+    if (sort == "DESC"):
+        query = users_ref.collection("foods").order_by("expiryDate", direction=firestore.Query.DESCENDING)
+    elif (sort == "ASC"):
+        query = users_ref.collection("foods").order_by("expiryDate", direction=firestore.Query.ASCENDING)
+        
+    results = query.get()
+    data = []
+    response = {}
+    for document in results:
+        food = {
+                "foodID" : document.id,
+                "name" : document.get('name'),
+                "category" : document.get('category'),
+                "expiryDate" : document.get('expiryDate'), 
+                "qty" : document.get('qty'),
+                "unit" : document.get('unit')
+                }
+        data.append(food)
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
+    return response
 
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

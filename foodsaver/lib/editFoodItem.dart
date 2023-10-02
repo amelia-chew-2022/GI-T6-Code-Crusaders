@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
+import 'package:http/http.dart' as http;
+import 'dart:collection';
+import "dart:convert";
 
 class EditFoodItem extends StatefulWidget {
   const EditFoodItem(
       {super.key,
       required this.email,
+      required this.foodId,
       required this.food,
       required this.quantity,
       required this.units,
@@ -14,6 +18,7 @@ class EditFoodItem extends StatefulWidget {
       required this.category});
 
   final String email;
+  final String foodId;
   final String food;
   final int quantity;
   final String units;
@@ -28,23 +33,13 @@ class _EditFoodItemState extends State<EditFoodItem> {
 
 
   final _formkey = GlobalKey<FormState>();
-  
+  TextEditingController nameController = TextEditingController();
+  TextEditingController quantityController =TextEditingController();
   TextEditingController expireDateController = TextEditingController();
+  String unit = 'grams';
+  var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
   
-  @override
-  void initState() {
-    super.initState();
-    expireDateController.text = widget.expiryDate;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    TextEditingController nameController = TextEditingController(text: widget.food);
-    TextEditingController quantityController =TextEditingController(text: widget.quantity.toString());
-    String unit = widget.units;
-    var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
-
-    String cat = widget.category;
+  String cat = 'Grains';
     var cats = [
       'Grains',
       'Milk Product',
@@ -54,6 +49,38 @@ class _EditFoodItemState extends State<EditFoodItem> {
       'Snacks',
       'Beverages'
     ];
+  Future<http.Response> updateAlbum(String id) {
+      return http.put(
+        Uri.parse('http://127.0.0.1:5000/updateItem/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "name": nameController.text,
+          "category": cat,
+          "expiryDate": expireDateController.text ,
+          "qty": quantityController.text,
+          "unit": unit
+        }),
+      );
+    }
+
+  @override
+  void initState() {
+    super.initState();
+    nameController.text = widget.food;
+    quantityController.text = widget.quantity.toString();
+    expireDateController.text = widget.expiryDate;
+    unit = widget.units;
+    cat = widget.category;
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    
+    
+    
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Form(
@@ -228,11 +255,13 @@ class _EditFoodItemState extends State<EditFoodItem> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
+                              updateAlbum(widget.foodId);
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           Inventory(email: widget.email)));
+                                
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -243,6 +272,7 @@ class _EditFoodItemState extends State<EditFoodItem> {
                               minimumSize: const Size.fromHeight(50),
                               backgroundColor: Color(0xFF003B2B)),
                           child: const Text("Save"),
+                          
                         ),
                       )),
                 ],

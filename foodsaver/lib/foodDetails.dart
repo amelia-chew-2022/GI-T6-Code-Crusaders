@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import './editFoodItem.dart';
+import 'dart:collection';
+import 'package:http/http.dart' as http;
+import './inventory.dart';
+
 
 class FoodDetails extends StatefulWidget {
   @override
@@ -9,6 +13,7 @@ class FoodDetails extends StatefulWidget {
   const FoodDetails(
       {super.key,
       required this.email,
+      required this.foodId,
       required this.food,
       required this.quantity,
       required this.units,
@@ -16,6 +21,7 @@ class FoodDetails extends StatefulWidget {
       required this.category});
 
   final String email;
+  final String foodId;
   final String food;
   final int quantity;
   final String units;
@@ -25,6 +31,17 @@ class FoodDetails extends StatefulWidget {
 
 class _DetailsState extends State<FoodDetails> {
   final _formkey = GlobalKey<FormState>(); // creating a key for form
+  
+  Future<http.Response> deleteItem(String id) async {
+    final http.Response response = await http.delete(
+      Uri.parse('http://127.0.0.1:5000/delete/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    return response;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +84,7 @@ class _DetailsState extends State<FoodDetails> {
                                       MaterialPageRoute(
                                           builder: (context) => EditFoodItem(
                                               email: widget.email,
+                                              foodId: widget.foodId,
                                               food: widget.food,
                                               quantity: widget.quantity,
                                               units: widget.units,
@@ -94,7 +112,14 @@ class _DetailsState extends State<FoodDetails> {
                                                   Padding(
                                                       padding: const EdgeInsets.all(10),
                                                       child: ElevatedButton(
-                                                        onPressed: () {},
+                                                        onPressed: () {
+                                                          deleteItem(widget.foodId);
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (context) =>
+                                                                    Inventory(email: widget.email)));
+                                                        },
                                                         child: const Text('Delete'),
                                                         style: ElevatedButton.styleFrom(
                                                             minimumSize:const Size.fromHeight(50),

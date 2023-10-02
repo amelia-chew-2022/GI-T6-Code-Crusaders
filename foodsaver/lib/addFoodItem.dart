@@ -237,12 +237,13 @@ class _AddFoodItemState extends State<AddFoodItem> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
+                              sendPostRequest();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           Inventory(email: widget.email)));
-                                          sendPostRequest();
+                                          
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

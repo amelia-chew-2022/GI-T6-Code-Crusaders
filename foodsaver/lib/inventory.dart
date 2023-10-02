@@ -62,6 +62,17 @@ class _InventoryState extends State<Inventory> {
     return inventoryList;
   }
 
+  Future<http.Response> deleteItem(String id) async {
+    final http.Response response = await http.delete(
+      Uri.parse('http://127.0.0.1:5000/delete/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    return response;
+}
+
   
   List<Food> filterByExpiry(List<Food> foods) {
     DateTime now = DateTime.now();
@@ -386,6 +397,7 @@ class _InventoryState extends State<Inventory> {
                                                   MaterialPageRoute(
                                                       builder: (context) =>FoodDetails(
                                                         email: widget.email,
+                                                        foodId: snapshot.data[index].foodId,
                                                         food: snapshot.data[index].foodItem,
                                                         quantity:snapshot.data[index].quantity,
                                                         units: snapshot.data[index].units,
@@ -404,6 +416,7 @@ class _InventoryState extends State<Inventory> {
                                                   MaterialPageRoute(
                                                       builder: (context) =>EditFoodItem(
                                                         email: widget.email,
+                                                        foodId: snapshot.data[index].foodId,
                                                         food: snapshot.data[index].foodItem,
                                                         quantity:snapshot.data[index].quantity,
                                                         units: snapshot.data[index].units,
@@ -432,12 +445,15 @@ class _InventoryState extends State<Inventory> {
                                                             Padding(
                                                                 padding:const EdgeInsets.all( 10),
                                                                 child: ElevatedButton(
-                                                                  onPressed: () {},
+                                                                  onPressed: () {
+                                                                    deleteItem(snapshot.data[index].foodId);
+                                                                    Navigator.pop(context);
+                                                                  },
                                                                   child: const Text('Delete'),
                                                                   style: ElevatedButton.styleFrom(
                                                                       minimumSize:
                                                                           const Size.fromHeight(50),
-                                                                      backgroundColor:Color( 0xFFD63434)),
+                                                                      backgroundColor:Color(0xFFD63434)),
                                                                 )),
                                                                 Padding(
                                                                 padding:const EdgeInsets.all( 10),

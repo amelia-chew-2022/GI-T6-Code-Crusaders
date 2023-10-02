@@ -117,25 +117,13 @@ class _InventoryState extends State<Inventory> {
   List<Food> sortInventory(List<Food> foods) {
     switch (selectedSort) {
       case 'Expiry Date (nearest to furthest)':
-        return foods
-          ..sort((a, b) =>
-              DateTime.parse(a.expiryDate).compareTo(DateTime.parse(b.expiryDate)));
+        return foods..sort((a, b) => DateTime.parse(a.expiryDate).compareTo(DateTime.parse(b.expiryDate)));
       case 'Expiry Date (furthest to nearest)':
-        return foods
-          ..sort((a, b) =>
-              DateTime.parse(b.expiryDate).compareTo(DateTime.parse(a.expiryDate)));
-      case 'Quantity (most to least)':
-        return foods..sort((a, b) => b.quantity.compareTo(a.quantity));
-      case 'Quantity (least to most)':
-        return foods..sort((a, b) => a.quantity.compareTo(b.quantity));
+        return foods..sort((a, b) => DateTime.parse(b.expiryDate).compareTo(DateTime.parse(a.expiryDate)));
       case 'Name (A-Z)':
         return foods..sort((a, b) => a.foodItem.compareTo(b.foodItem));
       case 'Name (Z-A)':
         return foods..sort((a, b) => b.foodItem.compareTo(a.foodItem));
-      case 'Category':
-        return foods..sort((a, b) => a.category.compareTo(b.category));
-      case 'Units':
-        return foods..sort((a, b) => a.units.compareTo(b.units));
       default:
         return foods;
     }
@@ -227,12 +215,8 @@ class _InventoryState extends State<Inventory> {
                                                   items: <String>[
                                                     'Expiry Date (nearest to furthest)',
                                                     'Expiry Date (furthest to nearest)',
-                                                    'Quantity (highest to lowest)',
-                                                    'Quantity (lowest to highest)',
                                                     'Name (A-Z)',
                                                     'Name (Z-A)',
-                                                    'Category',
-                                                    'Units',
                                                   ].map<DropdownMenuItem<String>>((String value) {
                                                     return DropdownMenuItem<String>(
                                                       value: value,

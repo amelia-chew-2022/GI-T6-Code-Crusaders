@@ -8,6 +8,8 @@ import "dart:convert";
 import 'package:intl/intl.dart';
 import './editFoodItem.dart';
 import 'dart:collection';
+import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Food {
   final String foodId;
@@ -16,6 +18,9 @@ class Food {
   final int quantity;
   final String units;
   final String category;
+  final String imageURL;
+
+  final String networkImage;
 
   const Food(
       {required this.foodId,
@@ -23,7 +28,37 @@ class Food {
       required this.expiryDate,
       required this.quantity,
       required this.units,
-      required this.category});
+      required this.category,
+      required this.imageURL,
+      required this.networkImage});
+}
+
+Future<String> getImageUrl(String imagePath) async {
+  final Reference storageRef =
+      await FirebaseStorage.instance.ref().child("food9759.jpg");
+  final String downloadURL = await storageRef.getDownloadURL();
+  return downloadURL;
+}
+
+Future<Uint8List?> loadImage(String imageUrl) async {
+  try {
+    Uri uri = Uri.parse(imageUrl);
+    String imagePath = uri.path;
+    final String downloadUrl = await getImageUrl(imagePath);
+    final response = await http.get(Uri.parse(downloadUrl));
+    if (response.statusCode == 200) {
+      // If the request to fetch the image is successful, convert the response body to Uint8List.
+      final Uint8List uint8List = Uint8List.fromList(response.bodyBytes);
+      return uint8List;
+    } else {
+      // If the request fails, return null or handle the error accordingly.
+      return null;
+    }
+  } catch (e) {
+    // Handle any exceptions that occur during the network request.
+    print('Error loading image: $e');
+    return null;
+  }
 }
 
 class Inventory extends StatefulWidget {
@@ -37,7 +72,8 @@ class Inventory extends StatefulWidget {
 class _InventoryState extends State<Inventory> {
   String selectedFilter = 'Expiry Date'; // Default expiry date
   String selectedCategory = 'Category'; // Default category
-  String selectedSort = 'Expiry Date (nearest to furthest)'; // Default sorting option
+  String selectedSort =
+      'Expiry Date (nearest to furthest)'; // Default sorting option
 
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
@@ -54,8 +90,9 @@ class _InventoryState extends State<Inventory> {
           expiryDate: indvFood["expiryDate"],
           quantity: indvFood["qty"],
           units: indvFood["unit"],
-          category: indvFood["category"]),
-          imageURL: indvFood["imageURL"];
+          category: indvFood["category"],
+          imageURL: indvFood["imageURL"],
+          networkImage: indvFood["imageURL"]);
 
       //Adding food to the list.
       inventoryList.add(food);
@@ -72,123 +109,152 @@ class _InventoryState extends State<Inventory> {
     );
 
     return response;
-}
+  }
 
-  Future<void> deleteFoodItem (BuildContext context, String foodItem, String foodId) {
+  Future<void> deleteFoodItem(
+      BuildContext context, String foodItem, String foodId) {
     return showDialog<void>(
-    
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            scrollable: true,
-            title: const Text("Delete: "),
-            content: Padding(
-              padding:const EdgeInsets.all(8.0),
-              child: Form(
-                  child: Column(
-                children: [
-                  Text( "Are you sure you want to delete " + foodItem + "?"),
-                  Padding(
-                      padding:const EdgeInsets.all( 10),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          deleteItem(foodId);
-                          deleteSuccess(context, foodItem);
-                        },
-                        child: const Text('Delete'),
-                        style: ElevatedButton.styleFrom(
-                            minimumSize:
-                                const Size.fromHeight(50),
-                            backgroundColor:Color(0xFFD63434)),
-                      )),
-                      Padding(
-                      padding:const EdgeInsets.all( 10),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel', style: TextStyle(color: Color(0xFF000000)),),
-                        style: OutlinedButton.styleFrom(
-                            minimumSize:const Size.fromHeight(50),
-                            backgroundColor:Color(0xFFFFFFFF) ),
-                      ))
-                ],
-              )),
-            ));
-      }
-    );}
-    Future<void> deleteSuccess (BuildContext context, String foodItem) {
-    return showDialog<void>(
-    
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            scrollable: true,
-            title: const Text("Delete: "),
-            content: Padding(
-              padding:const EdgeInsets.all(8.0),
-              child: Form(
-                  child: Column(
-                children: [
-                  Text( "You have successfully delete " + foodItem),
-                      Padding(
-                      padding:const EdgeInsets.all( 10),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Back to Home page', style: TextStyle(color: Color(0xFF000000)),),
-                        style: OutlinedButton.styleFrom(
-                            minimumSize:const Size.fromHeight(50),
-                            backgroundColor:Color(0xFFFFFFFF) ),
-                      ))
-                ],
-              )),
-            ));
-      }
-    );}
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              scrollable: true,
+              title: const Text("Delete: "),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                    child: Column(
+                  children: [
+                    Text("Are you sure you want to delete " + foodItem + "?"),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            deleteItem(foodId);
+                            deleteSuccess(context, foodItem);
+                          },
+                          child: const Text('Delete'),
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFD63434)),
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Color(0xFF000000)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFFFFFFF)),
+                        ))
+                  ],
+                )),
+              ));
+        });
+  }
 
-  
+  Future<void> deleteSuccess(BuildContext context, String foodItem) {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              scrollable: true,
+              title: const Text("Delete: "),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                    child: Column(
+                  children: [
+                    Text("You have successfully delete " + foodItem),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Back to Home page',
+                            style: TextStyle(color: Color(0xFF000000)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFFFFFFF)),
+                        ))
+                  ],
+                )),
+              ));
+        });
+  }
+
   List<Food> filterByExpiry(List<Food> foods) {
     DateTime now = DateTime.now();
     switch (selectedFilter) {
       case 'Today':
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 1)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                1)
             .toList();
       case 'Next 3 days':
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 3)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                3)
             .toList();
       case 'Next 7 days':
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 7)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                7)
             .toList();
       case 'Next 14 days':
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 14)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                14)
             .toList();
       case 'Next 30 days':
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 30)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                30)
             .toList();
       default:
         // All
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 100)
+                DateTime.parse(food.expiryDate)
+                    .difference(
+                        DateTime.parse(DateFormat("yyyy-MM-dd").format(now)))
+                    .inDays <=
+                100)
             .toList();
     }
   }
 
   List<Food> filterByCategory(List<Food> foods) {
-    if (selectedCategory == 'Category') { //all
+    if (selectedCategory == 'Category') {
+      //all
       return foods;
     } else {
       return foods.where((food) => food.category == selectedCategory).toList();
@@ -198,9 +264,13 @@ class _InventoryState extends State<Inventory> {
   List<Food> sortInventory(List<Food> foods) {
     switch (selectedSort) {
       case 'Expiry Date (nearest to furthest)':
-        return foods..sort((a, b) => DateTime.parse(a.expiryDate).compareTo(DateTime.parse(b.expiryDate)));
+        return foods
+          ..sort((a, b) => DateTime.parse(a.expiryDate)
+              .compareTo(DateTime.parse(b.expiryDate)));
       case 'Expiry Date (furthest to nearest)':
-        return foods..sort((a, b) => DateTime.parse(b.expiryDate).compareTo(DateTime.parse(a.expiryDate)));
+        return foods
+          ..sort((a, b) => DateTime.parse(b.expiryDate)
+              .compareTo(DateTime.parse(a.expiryDate)));
       case 'Name (A-Z)':
         return foods..sort((a, b) => a.foodItem.compareTo(b.foodItem));
       case 'Name (Z-A)':
@@ -220,6 +290,14 @@ class _InventoryState extends State<Inventory> {
     print(filteredAndSortedFoods);
     // Finally, sort the filtered and sorted list
     return sortInventory(filteredAndSortedFoods);
+  }
+
+  Widget buildPlaceholderWidget() {
+    return Icon(
+      Icons.error,
+      size: 50,
+      color: Colors.red, // Customize the color as needed
+    );
   }
 
   @override
@@ -288,18 +366,23 @@ class _InventoryState extends State<Inventory> {
                                               children: [
                                                 DropdownButton<String>(
                                                   value: selectedSort,
-                                                  onChanged: (String? newValue) {
+                                                  onChanged:
+                                                      (String? newValue) {
                                                     setState(() {
                                                       selectedSort = newValue!;
                                                     });
-                                                    },
+                                                  },
                                                   items: <String>[
                                                     'Expiry Date (nearest to furthest)',
                                                     'Expiry Date (furthest to nearest)',
                                                     'Name (A-Z)',
                                                     'Name (Z-A)',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
                                                       value: value,
                                                       child: Text(value),
                                                     );
@@ -335,9 +418,11 @@ class _InventoryState extends State<Inventory> {
                                                 // Expiry date
                                                 DropdownButton<String>(
                                                   value: selectedFilter,
-                                                  onChanged: (String? newValue) {
+                                                  onChanged:
+                                                      (String? newValue) {
                                                     setState(() {
-                                                      selectedFilter = newValue!;
+                                                      selectedFilter =
+                                                          newValue!;
                                                     });
                                                   },
                                                   items: <String>[
@@ -347,8 +432,12 @@ class _InventoryState extends State<Inventory> {
                                                     'Next 7 days',
                                                     'Next 14 days',
                                                     'Next 30 days',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
                                                       value: value,
                                                       child: Text(value),
                                                     );
@@ -357,9 +446,11 @@ class _InventoryState extends State<Inventory> {
                                                 // Category
                                                 DropdownButton<String>(
                                                   value: selectedCategory,
-                                                  onChanged: (String? newValue) {
+                                                  onChanged:
+                                                      (String? newValue) {
                                                     setState(() {
-                                                      selectedCategory = newValue!;
+                                                      selectedCategory =
+                                                          newValue!;
                                                     });
                                                   },
                                                   items: <String>[
@@ -371,8 +462,12 @@ class _InventoryState extends State<Inventory> {
                                                     'Vegetables',
                                                     'Snacks',
                                                     'Beverages',
-                                                  ].map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
                                                       value: value,
                                                       child: Text(value),
                                                     );
@@ -430,27 +525,25 @@ class _InventoryState extends State<Inventory> {
                               return Column(
                                 children: <Widget>[
                                   ListTile(
-                                    leading: Icon(
-                                      Icons.circle,
-                                      size: 15,
-                                      color: DateTime.parse(snapshot
-                                                      .data[index].expiryDate)
-                                                  .difference(DateTime.parse(
-                                                      DateFormat("yyyy-MM-dd")
-                                                          .format(
-                                                              DateTime.now())))
-                                                  .inDays <=
-                                              1
-                                          ? Color(0xFFD63434)
-                                          : DateTime.parse(snapshot.data[index].expiryDate)
-                                                      .difference(DateTime.parse(
-                                                          DateFormat("yyyy-MM-dd")
-                                                              .format(
-                                                                  DateTime.now())))
-                                                      .inDays <=
-                                                  3
-                                              ? Color(0xFFFF9800)
-                                              : Color(0xFF007F5C),
+                                    leading: FutureBuilder(
+                                      future: loadImage(
+                                          sortedFoods[index].networkImage),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          return snapshot.hasError
+                                              ? buildPlaceholderWidget() // Replace with your error widget
+                                              : Image.memory(
+                                                  snapshot.data
+                                                      as Uint8List, // Assuming the image is loaded as Uint8List
+                                                  width: 50,
+                                                  height: 50,
+                                                  fit: BoxFit.cover,
+                                                );
+                                        } else {
+                                          return CircularProgressIndicator(); // Loading indicator while fetching image
+                                        }
+                                      },
                                     ),
                                     trailing: Wrap(
                                       spacing: 5, // space between the icons
@@ -461,14 +554,30 @@ class _InventoryState extends State<Inventory> {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>FoodDetails(
-                                                        email: widget.email,
-                                                        foodId: snapshot.data[index].foodId,
-                                                        food: snapshot.data[index].foodItem,
-                                                        quantity:snapshot.data[index].quantity,
-                                                        units: snapshot.data[index].units,
-                                                        expiryDate: snapshot.data[index].expiryDate,
-                                                        category: snapshot.data[index].category)));
+                                                      builder: (context) =>
+                                                          FoodDetails(
+                                                              email:
+                                                                  widget.email,
+                                                              foodId: snapshot
+                                                                  .data[index]
+                                                                  .foodId,
+                                                              food: snapshot
+                                                                  .data[index]
+                                                                  .foodItem,
+                                                              quantity: snapshot
+                                                                  .data[index]
+                                                                  .quantity,
+                                                              units:
+                                                                  snapshot
+                                                                      .data[
+                                                                          index]
+                                                                      .units,
+                                                              expiryDate: snapshot
+                                                                  .data[index]
+                                                                  .expiryDate,
+                                                              category: snapshot
+                                                                  .data[index]
+                                                                  .category)));
                                             },
                                             icon: const Icon(
                                               Icons.remove_red_eye,
@@ -480,14 +589,28 @@ class _InventoryState extends State<Inventory> {
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>EditFoodItem(
-                                                        email: widget.email,
-                                                        foodId: snapshot.data[index].foodId,
-                                                        food: snapshot.data[index].foodItem,
-                                                        quantity:snapshot.data[index].quantity,
-                                                        units: snapshot.data[index].units,
-                                                        expiryDate: snapshot.data[index].expiryDate,
-                                                        category: snapshot.data[index].category)));
+                                                      builder: (context) =>
+                                                          EditFoodItem(
+                                                              email:
+                                                                  widget.email,
+                                                              foodId: snapshot
+                                                                  .data[index]
+                                                                  .foodId,
+                                                              food: snapshot
+                                                                  .data[index]
+                                                                  .foodItem,
+                                                              quantity: snapshot
+                                                                  .data[index]
+                                                                  .quantity,
+                                                              units: snapshot
+                                                                  .data[index]
+                                                                  .units,
+                                                              expiryDate: snapshot
+                                                                  .data[index]
+                                                                  .expiryDate,
+                                                              category: snapshot
+                                                                  .data[index]
+                                                                  .category)));
                                             },
                                             icon: const Icon(
                                               Icons.edit,
@@ -496,13 +619,38 @@ class _InventoryState extends State<Inventory> {
                                         // Delete Food
                                         IconButton(
                                             onPressed: () {
-                                              deleteFoodItem(context, snapshot.data[index].foodItem, snapshot.data[index].foodId);
-
+                                              deleteFoodItem(
+                                                  context,
+                                                  snapshot.data[index].foodItem,
+                                                  snapshot.data[index].foodId);
                                             },
                                             icon: const Icon(
                                               Icons.delete,
                                               size: 20,
                                             )),
+                                        Icon(
+                                          Icons.circle,
+                                          size: 15,
+                                          color: DateTime.parse(snapshot
+                                                          .data[index]
+                                                          .expiryDate)
+                                                      .difference(DateTime.parse(
+                                                          DateFormat("yyyy-MM-dd").format(
+                                                              DateTime.now())))
+                                                      .inDays <=
+                                                  1
+                                              ? Color(0xFFD63434)
+                                              : DateTime.parse(snapshot
+                                                              .data[index]
+                                                              .expiryDate)
+                                                          .difference(DateTime.parse(
+                                                              DateFormat("yyyy-MM-dd")
+                                                                  .format(DateTime.now())))
+                                                          .inDays <=
+                                                      3
+                                                  ? Color(0xFFFF9800)
+                                                  : Color(0xFF007F5C),
+                                        )
                                       ],
                                     ),
                                     title: Text(
@@ -521,7 +669,8 @@ class _InventoryState extends State<Inventory> {
                                                       .difference(DateTime.parse(
                                                           DateFormat("yyyy-MM-dd").format(
                                                               DateTime.now())))
-                                                      .inDays <=1
+                                                      .inDays <=
+                                                  1
                                               ? Color(0xFFD63434)
                                               : DateTime.parse(snapshot
                                                               .data[index]
@@ -529,7 +678,8 @@ class _InventoryState extends State<Inventory> {
                                                           .difference(DateTime.parse(
                                                               DateFormat("yyyy-MM-dd")
                                                                   .format(DateTime.now())))
-                                                          .inDays <=3
+                                                          .inDays <=
+                                                      3
                                                   ? Color(0xFFFF9800)
                                                   : Color(0xFF007F5C)),
                                     ),

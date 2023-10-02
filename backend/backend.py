@@ -7,6 +7,8 @@ from google.cloud import firestore
 import firebase_admin
 from firebase_admin import credentials, storage
 from firebase_admin import firestore
+from flask_cors import CORS
+
 
 # Use a service account.
 cred = credentials.Certificate('../serviceAccount/key.json')
@@ -17,6 +19,7 @@ app = firebase_admin.initialize_app(cred, {
 db = firestore.client()
 
 app = Flask(__name__)
+CORS(app)
 
 #register users
 @app.post('/register')
@@ -138,7 +141,6 @@ def get_food():
         docs = food_ref.stream()
         response = {}
         data = []
-        image_url = get_image_url(document.id)
         for document in docs:
             food = {
                 "foodID" : document.id,
@@ -147,8 +149,10 @@ def get_food():
                 "expiryDate" : document.get('expiryDate'), 
                 "qty" : int(document.get('qty')),
                 "unit" : document.get('unit'),
-                "imageURL": image_url
+                "imageURL": document.get('image_url')
             }
+            #image_url = get_image_url(document.id)
+            #food["imageURL"] = image_url
             data.append(food)
 
         response['data'] = data

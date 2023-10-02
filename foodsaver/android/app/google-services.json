@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "450783420881",
+    "project_id": "pantry-pal-8faa1",
+    "storage_bucket": "pantry-pal-8faa1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:450783420881:android:e5c932ea123118288540f0",
+        "android_client_info": {
+          "package_name": "com.example.foodsaver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQhDWjCWSsccoBDOI490JaVk-pMSbihU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

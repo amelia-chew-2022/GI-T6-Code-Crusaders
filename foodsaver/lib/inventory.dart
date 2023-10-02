@@ -54,7 +54,8 @@ class _InventoryState extends State<Inventory> {
           expiryDate: indvFood["expiryDate"],
           quantity: indvFood["qty"],
           units: indvFood["unit"],
-          category: indvFood["category"]);
+          category: indvFood["category"]),
+          imageURL: indvFood["imageURL"];
 
       //Adding food to the list.
       inventoryList.add(food);

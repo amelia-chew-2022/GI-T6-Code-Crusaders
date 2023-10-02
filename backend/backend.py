@@ -195,9 +195,7 @@ def filterByExpiry(range):
     for document in docs:
         date_str = document.get('expiryDate')
         expiry = datetime.strptime(date_str, '%Y-%m-%d').date()
-        future_date = current_date + timedelta(days=3)
-        print(future_date)
-        print(expiry)
+        future_date = current_date + timedelta(days=range)
         if (expiry <= future_date):
             food = {
             "foodID" : document.id,
@@ -213,6 +211,34 @@ def filterByExpiry(range):
     response['message'] = "success"
     response['code'] = 200
     return response
-    
+
+@app.get('/filterByCategory/<category>') #url should look like '/filterByCategory/Snack'
+def filterByCategory(category):
+    userID = "user01"
+    users_ref = db.collection("userAccount").document(userID)
+    food_ref = users_ref.collection("foods")
+    docs = food_ref.stream()
+    response = {}
+    data = []
+
+    for document in docs:
+        if (document.get('category') == category):
+            food = {
+                "foodID" : document.id,
+                "name" : document.get('name'),
+                "category" : document.get('category'),
+                "expiryDate" : document.get('expiryDate'), 
+                "qty" : document.get('qty'),
+                "unit" : document.get('unit')
+                }
+            data.append(food)
+    response['data'] = data
+    response['message'] = "success"
+    response['code'] = 200
+    return response
+
+
+
+
 if __name__ == '__main__':
     app.run() #debug=True,  host='0.0.0.0', port=8080)

@@ -104,7 +104,7 @@ def addItem():
         "name" : form_data.get('name'),
         "category" : form_data.get('category'),
         "expiryDate" : form_data.get('expiryDate'), 
-        "qty" : form_data.get('qty'),
+        "qty" : int(form_data.get('qty')),
         "unit" : form_data.get('unit')
     }
 

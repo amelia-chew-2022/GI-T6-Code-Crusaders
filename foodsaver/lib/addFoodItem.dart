@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
+import "dart:convert";
+import 'package:http/http.dart' as http;
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
   final _formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController expireDateController = TextEditingController();
-  TextEditingController quantityeController = TextEditingController();
+  TextEditingController quantityController = TextEditingController();
 
   String unit = 'grams';
   var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
@@ -35,6 +37,28 @@ class _AddFoodItemState extends State<AddFoodItem> {
   void initState() {
     super.initState();
     expireDateController.text = "";
+  }
+  final apiUrl = "http://127.0.0.1:5000/addItem";
+  Future<void> sendPostRequest() async {
+    var response = await http.post(Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "name": nameController.text,
+          "category": cat,
+          "expiryDate": expireDateController.text ,
+          "qty": quantityController.text,
+          "unit": unit
+        }));
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Post created successfully!"),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Failed to create post!"),
+      ));
+    }
   }
 
   @override
@@ -132,7 +156,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextFormField(
-                      controller: quantityeController,
+                      controller: quantityController,
                       decoration: const InputDecoration(
                           suffixIcon: Icon(Icons.numbers),
                           labelText: "Quantity",
@@ -218,6 +242,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           Inventory(email: widget.email)));
+                                          sendPostRequest();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

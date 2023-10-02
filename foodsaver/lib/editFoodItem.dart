@@ -30,40 +30,75 @@ class EditFoodItem extends StatefulWidget {
 }
 
 class _EditFoodItemState extends State<EditFoodItem> {
-
-
   final _formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
-  TextEditingController quantityController =TextEditingController();
+  TextEditingController quantityController = TextEditingController();
   TextEditingController expireDateController = TextEditingController();
   String unit = 'grams';
   var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
-  
+
   String cat = 'Grains';
-    var cats = [
-      'Grains',
-      'Milk Product',
-      'Fruits',
-      'Nuts',
-      'Vegetables',
-      'Snacks',
-      'Beverages'
-    ];
-  Future<http.Response> updateAlbum(String id) {
-      return http.put(
-        Uri.parse('http://127.0.0.1:5000/updateItem/$id'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          "name": nameController.text,
-          "category": cat,
-          "expiryDate": expireDateController.text ,
-          "qty": quantityController.text,
-          "unit": unit
-        }),
-      );
-    }
+  var cats = [
+    'Grains',
+    'Milk Product',
+    'Fruits',
+    'Nuts',
+    'Vegetables',
+    'Snacks',
+    'Beverages'
+  ];
+  Future<http.Response> updateFood(String id) {
+    return http.put(
+      Uri.parse('http://127.0.0.1:5000/updateItem/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "name": nameController.text,
+        "category": cat,
+        "expiryDate": expireDateController.text,
+        "qty": quantityController.text,
+        "unit": unit
+      }),
+    );
+  }
+
+  Future<void> editSuccess(BuildContext context, String foodItem) {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              scrollable: true,
+              title: const Text("Edit: "),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                    child: Column(
+                  children: [
+                    Text(foodItem + " updated successfully"),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Inventory(email: widget.email)));
+                          },
+                          child: const Text(
+                            'Back to Home page',
+                            style: TextStyle(color: Color(0xFF000000)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFFFFFFF)),
+                        ))
+                  ],
+                )),
+              ));
+        });
+  }
 
   @override
   void initState() {
@@ -75,12 +110,8 @@ class _EditFoodItemState extends State<EditFoodItem> {
     cat = widget.category;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    
-    
-    
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Form(
@@ -255,13 +286,8 @@ class _EditFoodItemState extends State<EditFoodItem> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
-                              updateAlbum(widget.foodId);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Inventory(email: widget.email)));
-                                
+                              updateFood(widget.foodId);
+                              editSuccess(context, widget.food);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -272,7 +298,6 @@ class _EditFoodItemState extends State<EditFoodItem> {
                               minimumSize: const Size.fromHeight(50),
                               backgroundColor: Color(0xFF003B2B)),
                           child: const Text("Save"),
-                          
                         ),
                       )),
                 ],

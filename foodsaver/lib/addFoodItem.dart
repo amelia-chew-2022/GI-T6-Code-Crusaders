@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import './inventory.dart';
+import "dart:convert";
+import 'package:http/http.dart' as http;
+import './widgets/image_upload.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path; // Import the 'path' package
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -15,7 +20,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
   final _formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController expireDateController = TextEditingController();
-  TextEditingController quantityeController = TextEditingController();
+  TextEditingController quantityController = TextEditingController();
 
   String unit = 'grams';
   var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
@@ -35,6 +40,53 @@ class _AddFoodItemState extends State<AddFoodItem> {
   void initState() {
     super.initState();
     expireDateController.text = "";
+  }
+
+  File? selectedImage;
+
+  Future<void> sendPostRequest(File? imageFile) async {
+    final apiUrl = "http://127.0.0.1:5000/addItem";
+    var uri = Uri.parse(apiUrl);
+
+    try {
+      final request = http.MultipartRequest('POST', uri)
+        ..fields.addAll({
+          "name": nameController.text,
+          "category": cat,
+          "expiryDate": expireDateController.text,
+          "qty": quantityController.text,
+          "unit": unit,
+        });
+
+      // Add the image file to the request
+      if (imageFile != null) {
+        request.files.add(
+          http.MultipartFile(
+            'image',
+            http.ByteStream(imageFile.openRead()),
+            await imageFile.length(),
+            filename: path.basename(imageFile.path),
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Post created successfully!"),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Failed to create post!"),
+        ));
+      }
+    } catch (e) {
+      // Handle any exceptions that may occur during the upload
+      print('Error uploading image and data: $e');
+      // You can show an error message to the user if needed
+    }
   }
 
   @override
@@ -132,7 +184,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextFormField(
-                      controller: quantityeController,
+                      controller: quantityController,
                       decoration: const InputDecoration(
                           suffixIcon: Icon(Icons.numbers),
                           labelText: "Quantity",
@@ -210,9 +262,22 @@ class _AddFoodItemState extends State<AddFoodItem> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 16),
                       child: Center(
+                        child: ImageUploadWidget(
+                          onImageSelected: (File? image) {
+                            setState(() {
+                              selectedImage = image;
+                            });
+                          },
+                        ),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 16),
+                      child: Center(
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
+                              sendPostRequest(selectedImage);
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

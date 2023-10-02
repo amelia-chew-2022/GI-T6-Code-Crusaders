@@ -4,14 +4,15 @@ import random
 from datetime import datetime, date, timedelta
 
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, storage
 from firebase_admin import firestore
 
 # Use a service account.
 cred = credentials.Certificate('../serviceAccount/key.json')
 
-app = firebase_admin.initialize_app(cred)
-
+app = firebase_admin.initialize_app(cred, {
+    'storageBucket': 'pantry-pal-8faa1.appspot.com'  # Replace with your Firebase Storage bucket URL
+})
 db = firestore.client()
 
 app = Flask(__name__)
@@ -38,6 +39,28 @@ def register():
 #         data.append(item)
 
 #     return jsonify(data)
+
+@app.route('/upload-image', methods=['POST'])
+def upload_image():
+    try:
+        # Get the uploaded image file
+        image = request.files['image']
+
+        if image:
+            # Upload the image to Firebase Storage
+            bucket = storage.bucket()
+            blob = bucket.blob(f"images/{image.filename}")
+            blob.upload_from_string(image.read(), content_type=image.content_type)
+
+            # Get the public URL of the uploaded image
+            image_url = blob.public_url
+
+            # You can now save or use the image URL as needed
+            return {'success': True, 'message': 'Image uploaded successfully', 'imageUrl': image_url}, 200
+        else:
+            return {'success': False, 'message': 'No image uploaded'}, 400
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 500
 
 
 @app.get('/allFoodItem')
@@ -105,7 +128,7 @@ def addItem():
         "name" : form_data.get('name'),
         "category" : form_data.get('category'),
         "expiryDate" : form_data.get('expiryDate'), 
-        "qty" : form_data.get('qty'),
+        "qty" : int(form_data.get('qty')),
         "unit" : form_data.get('unit')
     }
 
@@ -135,7 +158,7 @@ def update(foodID):
         "name" : form_data.get('name'),
         "category" : form_data.get('category'),
         "expiryDate" : form_data.get('expiryDate'), 
-        "qty" : form_data.get('qty'),
+        "qty" : int(form_data.get('qty')),
         "unit" : form_data.get('unit')
     }
 

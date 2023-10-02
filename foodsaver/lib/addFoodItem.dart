@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import './inventory.dart';
 import "dart:convert";
 import 'package:http/http.dart' as http;
+import './widgets/image_upload.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path; // Import the 'path' package
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -38,26 +41,51 @@ class _AddFoodItemState extends State<AddFoodItem> {
     super.initState();
     expireDateController.text = "";
   }
-  final apiUrl = "http://127.0.0.1:5000/addItem";
-  Future<void> sendPostRequest() async {
-    var response = await http.post(Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
+
+  File? selectedImage;
+
+  Future<void> sendPostRequest(File? imageFile) async {
+    final apiUrl = "http://127.0.0.1:5000/addItem";
+    var uri = Uri.parse(apiUrl);
+
+    try {
+      final request = http.MultipartRequest('POST', uri)
+        ..fields.addAll({
           "name": nameController.text,
           "category": cat,
-          "expiryDate": expireDateController.text ,
+          "expiryDate": expireDateController.text,
           "qty": quantityController.text,
-          "unit": unit
-        }));
+          "unit": unit,
+        });
 
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Post created successfully!"),
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Failed to create post!"),
-      ));
+      // Add the image file to the request
+      if (imageFile != null) {
+        request.files.add(
+          http.MultipartFile(
+            'image',
+            http.ByteStream(imageFile.openRead()),
+            await imageFile.length(),
+            filename: path.basename(imageFile.path),
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Post created successfully!"),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Failed to create post!"),
+        ));
+      }
+    } catch (e) {
+      // Handle any exceptions that may occur during the upload
+      print('Error uploading image and data: $e');
+      // You can show an error message to the user if needed
     }
   }
 
@@ -234,16 +262,27 @@ class _AddFoodItemState extends State<AddFoodItem> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 16),
                       child: Center(
+                        child: ImageUploadWidget(
+                          onImageSelected: (File? image) {
+                            setState(() {
+                              selectedImage = image;
+                            });
+                          },
+                        ),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 16),
+                      child: Center(
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
-                              sendPostRequest();
+                              sendPostRequest(selectedImage);
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           Inventory(email: widget.email)));
-                                          
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

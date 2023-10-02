@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import './inventory.dart';
 import "dart:convert";
 import 'package:http/http.dart' as http;
-import './widgets/image_upload.dart';
+import 'widgets/image_picker.dart';
 import 'dart:io';
-import 'package:path/path.dart' as path; // Import the 'path' package
+import 'package:path/path.dart' as path;
+import 'dart:typed_data';
 
 class AddFoodItem extends StatefulWidget {
   @override
@@ -21,6 +22,14 @@ class _AddFoodItemState extends State<AddFoodItem> {
   TextEditingController nameController = TextEditingController();
   TextEditingController expireDateController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
+
+  Uint8List? selectedImageBytes;
+
+  Future<void> handleImageSelection(Uint8List? bytes) async {
+    setState(() {
+      selectedImageBytes = bytes;
+    });
+  }
 
   String unit = 'grams';
   var units = ['grams', 'milliliters', 'litres', 'loaf', 'kilograms'];
@@ -44,7 +53,7 @@ class _AddFoodItemState extends State<AddFoodItem> {
 
   File? selectedImage;
 
-  Future<void> sendPostRequest(File? imageFile) async {
+  Future<void> sendPostRequest(Uint8List? imageBytes) async {
     final apiUrl = "http://127.0.0.1:5000/addItem";
     var uri = Uri.parse(apiUrl);
 
@@ -58,16 +67,13 @@ class _AddFoodItemState extends State<AddFoodItem> {
           "unit": unit,
         });
 
-      // Add the image file to the request
-      if (imageFile != null) {
-        request.files.add(
-          http.MultipartFile(
-            'image',
-            http.ByteStream(imageFile.openRead()),
-            await imageFile.length(),
-            filename: path.basename(imageFile.path),
-          ),
-        );
+      // Add the image bytes to the request
+      if (imageBytes != null) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: 'image.jpg',
+        ));
       }
 
       final streamedResponse = await request.send();
@@ -262,12 +268,8 @@ class _AddFoodItemState extends State<AddFoodItem> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 16),
                       child: Center(
-                        child: ImageUploadWidget(
-                          onImageSelected: (File? image) {
-                            setState(() {
-                              selectedImage = image;
-                            });
-                          },
+                        child: ImagePickerButton(
+                          onImageSelected: handleImageSelection,
                         ),
                       )),
                   Padding(
@@ -277,16 +279,20 @@ class _AddFoodItemState extends State<AddFoodItem> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
-                              sendPostRequest(selectedImage);
+                              sendPostRequest(
+                                  selectedImageBytes); // Pass selectedImageBytes instead of selectedImage
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Inventory(email: widget.email)));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Inventory(email: widget.email),
+                                ),
+                              );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Please fill input')));
+                                const SnackBar(
+                                    content: Text('Please fill input')),
+                              );
                             }
                           },
                           style: ElevatedButton.styleFrom(

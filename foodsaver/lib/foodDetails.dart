@@ -5,7 +5,6 @@ import 'dart:collection';
 import 'package:http/http.dart' as http;
 import './inventory.dart';
 
-
 class FoodDetails extends StatefulWidget {
   @override
   State<FoodDetails> createState() => _DetailsState();
@@ -31,7 +30,7 @@ class FoodDetails extends StatefulWidget {
 
 class _DetailsState extends State<FoodDetails> {
   final _formkey = GlobalKey<FormState>(); // creating a key for form
-  
+
   Future<http.Response> deleteItem(String id) async {
     final http.Response response = await http.delete(
       Uri.parse('http://127.0.0.1:5000/delete/$id'),
@@ -41,7 +40,90 @@ class _DetailsState extends State<FoodDetails> {
     );
 
     return response;
-}
+  }
+
+  Future<void> deleteFoodItem(
+      BuildContext context, String foodItem, String foodId) {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              scrollable: true,
+              title: const Text("Delete: "),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                    child: Column(
+                  children: [
+                    Text("Are you sure you want to delete " + foodItem + "?"),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            deleteItem(foodId);
+                            deleteSuccess(context, foodItem);
+                          },
+                          child: const Text('Delete'),
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFD63434)),
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Color(0xFF000000)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFFFFFFF)),
+                        ))
+                  ],
+                )),
+              ));
+        });
+  }
+
+  Future<void> deleteSuccess(BuildContext context, String foodItem) {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              scrollable: true,
+              title: const Text("Delete: "),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                    child: Column(
+                  children: [
+                    Text("You have successfully delete " + foodItem),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Inventory(email: widget.email)));
+                          },
+                          child: const Text(
+                            'Back to Home page',
+                            style: TextStyle(color: Color(0xFF000000)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: Color(0xFFFFFFFF)),
+                        ))
+                  ],
+                )),
+              ));
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +144,8 @@ class _DetailsState extends State<FoodDetails> {
                             Row(children: [
                               Container(
                                   child: IconButton(
-                                      icon: Icon(Icons.chevron_left_rounded, size: 28),
+                                      icon: Icon(Icons.chevron_left_rounded,
+                                          size: 28),
                                       onPressed: () {
                                         Navigator.pop(context);
                                       })),
@@ -97,53 +180,8 @@ class _DetailsState extends State<FoodDetails> {
                                   child: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                            scrollable: true,
-                                            title: const Text("Delete: "),
-                                            content: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Form(
-                                                  child: Column(
-                                                children: [
-                                                  Text("Are you sure you want to delete " +  widget.food + "?"),
-                                                  Padding(
-                                                      padding: const EdgeInsets.all(10),
-                                                      child: ElevatedButton(
-                                                        onPressed: () {
-                                                          deleteItem(widget.foodId);
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    Inventory(email: widget.email)));
-                                                        },
-                                                        child: const Text('Delete'),
-                                                        style: ElevatedButton.styleFrom(
-                                                            minimumSize:const Size.fromHeight(50),
-                                                            backgroundColor:Color( 0xFFD63434)))),
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.all( 10),
-                                                      child: OutlinedButton(
-                                                        onPressed: () {
-                                                          Navigator.pop( context);
-                                                        },
-                                                        child: const Text(
-                                                          'Cancel',
-                                                          style: TextStyle(color: Color(0xFF000000)),
-                                                        ),
-                                                        style: OutlinedButton.styleFrom(
-                                                            minimumSize: const Size.fromHeight(50),
-                                                            backgroundColor:
-                                                                Color( 0xFFFFFFFF)),
-                                                      ))
-                                                ],
-                                              )),
-                                            ));
-                                      });
+                                  deleteFoodItem(
+                                      context, widget.food, widget.foodId);
                                 },
                               ))
                             ]),
@@ -205,6 +243,6 @@ class _DetailsState extends State<FoodDetails> {
                           ],
                         ))
                   ]),
-    )));
+            )));
   }
 }

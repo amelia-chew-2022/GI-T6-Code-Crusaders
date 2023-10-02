@@ -73,6 +73,81 @@ class _InventoryState extends State<Inventory> {
     return response;
 }
 
+  Future<void> deleteFoodItem (BuildContext context, String foodItem, String foodId) {
+    return showDialog<void>(
+    
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            scrollable: true,
+            title: const Text("Delete: "),
+            content: Padding(
+              padding:const EdgeInsets.all(8.0),
+              child: Form(
+                  child: Column(
+                children: [
+                  Text( "Are you sure you want to delete " + foodItem + "?"),
+                  Padding(
+                      padding:const EdgeInsets.all( 10),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          deleteItem(foodId);
+                          deleteSuccess(context, foodItem);
+                        },
+                        child: const Text('Delete'),
+                        style: ElevatedButton.styleFrom(
+                            minimumSize:
+                                const Size.fromHeight(50),
+                            backgroundColor:Color(0xFFD63434)),
+                      )),
+                      Padding(
+                      padding:const EdgeInsets.all( 10),
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel', style: TextStyle(color: Color(0xFF000000)),),
+                        style: OutlinedButton.styleFrom(
+                            minimumSize:const Size.fromHeight(50),
+                            backgroundColor:Color(0xFFFFFFFF) ),
+                      ))
+                ],
+              )),
+            ));
+      }
+    );}
+    Future<void> deleteSuccess (BuildContext context, String foodItem) {
+    return showDialog<void>(
+    
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            scrollable: true,
+            title: const Text("Delete: "),
+            content: Padding(
+              padding:const EdgeInsets.all(8.0),
+              child: Form(
+                  child: Column(
+                children: [
+                  Text( "You have successfully delete " + foodItem),
+                      Padding(
+                      padding:const EdgeInsets.all( 10),
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Back to Home page', style: TextStyle(color: Color(0xFF000000)),),
+                        style: OutlinedButton.styleFrom(
+                            minimumSize:const Size.fromHeight(50),
+                            backgroundColor:Color(0xFFFFFFFF) ),
+                      ))
+                ],
+              )),
+            ));
+      }
+    );}
+
   
   List<Food> filterByExpiry(List<Food> foods) {
     DateTime now = DateTime.now();
@@ -430,46 +505,7 @@ class _InventoryState extends State<Inventory> {
                                         // Delete Food
                                         IconButton(
                                             onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                      scrollable: true,
-                                                      title: const Text("Delete: "),
-                                                      content: Padding(
-                                                        padding:const EdgeInsets.all(8.0),
-                                                        child: Form(
-                                                            child: Column(
-                                                          children: [
-                                                            Text( "Are you sure you want to delete " + snapshot.data[index].foodItem + "?"),
-                                                            Padding(
-                                                                padding:const EdgeInsets.all( 10),
-                                                                child: ElevatedButton(
-                                                                  onPressed: () {
-                                                                    deleteItem(snapshot.data[index].foodId);
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: const Text('Delete'),
-                                                                  style: ElevatedButton.styleFrom(
-                                                                      minimumSize:
-                                                                          const Size.fromHeight(50),
-                                                                      backgroundColor:Color(0xFFD63434)),
-                                                                )),
-                                                                Padding(
-                                                                padding:const EdgeInsets.all( 10),
-                                                                child: OutlinedButton(
-                                                                  onPressed: () {
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: const Text('Cancel', style: TextStyle(color: Color(0xFF000000)),),
-                                                                  style: OutlinedButton.styleFrom(
-                                                                      minimumSize:const Size.fromHeight(50),
-                                                                      backgroundColor:Color(0xFFFFFFFF) ),
-                                                                ))
-                                                          ],
-                                                        )),
-                                                      ));
-                                                });
+                                              deleteFoodItem(context, snapshot.data[index].foodItem, snapshot.data[index].foodId);
 
                                             },
                                             icon: const Icon(

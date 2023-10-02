@@ -15,7 +15,8 @@ class EditFoodItem extends StatefulWidget {
       required this.quantity,
       required this.units,
       required this.expiryDate,
-      required this.category});
+      required this.category,
+      required this.refreshCallback});
 
   final String email;
   final String foodId;
@@ -24,6 +25,8 @@ class EditFoodItem extends StatefulWidget {
   final String units;
   final String expiryDate;
   final String category;
+
+  final Function() refreshCallback;
 
   @override
   State<EditFoodItem> createState() => _EditFoodItemState();
@@ -284,10 +287,11 @@ class _EditFoodItemState extends State<EditFoodItem> {
                           horizontal: 10, vertical: 16),
                       child: Center(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formkey.currentState!.validate()) {
-                              updateFood(widget.foodId);
+                              await updateFood(widget.foodId);
                               editSuccess(context, widget.food);
+                              widget.refreshCallback();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

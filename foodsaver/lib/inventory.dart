@@ -73,6 +73,14 @@ class _InventoryState extends State<Inventory> {
   String selectedSort =
       'Expiry Date (nearest to furthest)'; // Default sorting option
 
+  // Define a callback function to refresh the inventory
+  void refreshInventory() {
+    // Call your API or update data here
+    setState(() {
+      // Update your inventory data if needed
+    });
+  }
+
   Future<List<Food>> getRequest() async {
     String url = "http://127.0.0.1:5000/allFoodItem";
     final response = await http.get(Uri.parse(url));
@@ -105,6 +113,8 @@ class _InventoryState extends State<Inventory> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+
+    refreshInventory();
 
     return response;
   }
@@ -490,8 +500,10 @@ class _InventoryState extends State<Inventory> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            AddFoodItem(email: widget.email)));
+                                        builder: (context) => AddFoodItem(
+                                            email: widget.email,
+                                            refreshCallback:
+                                                refreshInventory)));
                               },
                             ))
                           ]),
@@ -523,26 +535,54 @@ class _InventoryState extends State<Inventory> {
                               return Column(
                                 children: <Widget>[
                                   ListTile(
-                                    leading: FutureBuilder(
-                                      future: loadImage(
-                                          sortedFoods[index].networkImage),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.done) {
-                                          return snapshot.hasError
-                                              ? buildPlaceholderWidget() // Replace with your error widget
-                                              : Image.memory(
-                                                  snapshot.data
-                                                      as Uint8List, // Assuming the image is loaded as Uint8List
-                                                  width: 50,
-                                                  height: 50,
-                                                  fit: BoxFit.cover,
-                                                );
-                                        } else {
-                                          return CircularProgressIndicator(); // Loading indicator while fetching image
-                                        }
-                                      },
-                                    ),
+                                    leading:
+                                        Wrap(
+                                          spacing: 20, 
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: <Widget>[
+                                      Icon(
+                                        Icons.circle,
+                                        size: 15,
+                                        color: DateTime.parse(snapshot
+                                                        .data[index].expiryDate)
+                                                    .difference(DateTime.parse(
+                                                        DateFormat("yyyy-MM-dd").format(
+                                                            DateTime.now())))
+                                                    .inDays <=
+                                                1
+                                            ? Color(0xFFD63434)
+                                            : DateTime.parse(snapshot
+                                                            .data[index]
+                                                            .expiryDate)
+                                                        .difference(DateTime.parse(
+                                                            DateFormat("yyyy-MM-dd")
+                                                                .format(DateTime.now())))
+                                                        .inDays <=
+                                                    3
+                                                ? Color(0xFFFF9800)
+                                                : Color(0xFF007F5C),
+                                      ),
+                                      FutureBuilder(
+                                        future: loadImage(
+                                            sortedFoods[index].networkImage),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.done) {
+                                            return snapshot.hasError
+                                                ? buildPlaceholderWidget() // Replace with your error widget
+                                                : Image.memory(
+                                                    snapshot.data
+                                                        as Uint8List, // Assuming the image is loaded as Uint8List
+                                                    width: 50,
+                                                    height: 50,
+                                                    fit: BoxFit.cover,
+                                                  );
+                                          } else {
+                                            return CircularProgressIndicator(); // Loading indicator while fetching image
+                                          }
+                                        },
+                                      ),
+                                    ]),
                                     trailing: Wrap(
                                       spacing: 5, // space between the icons
                                       children: <Widget>[
@@ -565,17 +605,17 @@ class _InventoryState extends State<Inventory> {
                                                               quantity: snapshot
                                                                   .data[index]
                                                                   .quantity,
-                                                              units:
-                                                                  snapshot
-                                                                      .data[
-                                                                          index]
-                                                                      .units,
+                                                              units: snapshot
+                                                                  .data[index]
+                                                                  .units,
                                                               expiryDate: snapshot
                                                                   .data[index]
                                                                   .expiryDate,
                                                               category: snapshot
                                                                   .data[index]
-                                                                  .category)));
+                                                                  .category,
+                                                              refreshCallback:
+                                                                  refreshInventory)));
                                             },
                                             icon: const Icon(
                                               Icons.remove_red_eye,
@@ -608,7 +648,9 @@ class _InventoryState extends State<Inventory> {
                                                                   .expiryDate,
                                                               category: snapshot
                                                                   .data[index]
-                                                                  .category)));
+                                                                  .category,
+                                                              refreshCallback:
+                                                                  refreshInventory)));
                                             },
                                             icon: const Icon(
                                               Icons.edit,
@@ -626,29 +668,6 @@ class _InventoryState extends State<Inventory> {
                                               Icons.delete,
                                               size: 20,
                                             )),
-                                        Icon(
-                                          Icons.circle,
-                                          size: 15,
-                                          color: DateTime.parse(snapshot
-                                                          .data[index]
-                                                          .expiryDate)
-                                                      .difference(DateTime.parse(
-                                                          DateFormat("yyyy-MM-dd").format(
-                                                              DateTime.now())))
-                                                      .inDays <=
-                                                  1
-                                              ? Color(0xFFD63434)
-                                              : DateTime.parse(snapshot
-                                                              .data[index]
-                                                              .expiryDate)
-                                                          .difference(DateTime.parse(
-                                                              DateFormat("yyyy-MM-dd")
-                                                                  .format(DateTime.now())))
-                                                          .inDays <=
-                                                      3
-                                                  ? Color(0xFFFF9800)
-                                                  : Color(0xFF007F5C),
-                                        )
                                       ],
                                     ),
                                     title: Text(

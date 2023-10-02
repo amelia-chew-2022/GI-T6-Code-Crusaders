@@ -13,8 +13,11 @@ class AddFoodItem extends StatefulWidget {
   @override
   State<AddFoodItem> createState() => _AddFoodItemState();
 
-  const AddFoodItem({super.key, required this.email});
+  AddFoodItem({Key? key, required this.email, required this.refreshCallback})
+      : super(key: key);
   final String email;
+
+  final Function() refreshCallback;
 }
 
 class _AddFoodItemState extends State<AddFoodItem> {
@@ -277,10 +280,11 @@ class _AddFoodItemState extends State<AddFoodItem> {
                           horizontal: 10, vertical: 16),
                       child: Center(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formkey.currentState!.validate()) {
-                              sendPostRequest(
+                              await sendPostRequest(
                                   selectedImageBytes); // Pass selectedImageBytes instead of selectedImage
+                              widget.refreshCallback();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

@@ -35,16 +35,14 @@ class Food {
 
 Future<String> getImageUrl(String imagePath) async {
   final Reference storageRef =
-      await FirebaseStorage.instance.ref().child("food9759.jpg");
+      await FirebaseStorage.instance.ref().child(imagePath);
   final String downloadURL = await storageRef.getDownloadURL();
   return downloadURL;
 }
 
 Future<Uint8List?> loadImage(String imageUrl) async {
   try {
-    Uri uri = Uri.parse(imageUrl);
-    String imagePath = uri.path;
-    final String downloadUrl = await getImageUrl(imagePath);
+    final String downloadUrl = await getImageUrl(imageUrl);
     final response = await http.get(Uri.parse(downloadUrl));
     if (response.statusCode == 200) {
       // If the request to fetch the image is successful, convert the response body to Uint8List.

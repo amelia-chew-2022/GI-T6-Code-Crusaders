@@ -69,7 +69,7 @@ def addItem():
             # Get the public URL of the uploaded image
             image_url = blob.public_url
         else:
-            image_url = None
+            image_filename = None
 
         # Post the data to Firestore
         users_ref = db.collection("userAccount").document("user01")
@@ -81,7 +81,7 @@ def addItem():
             "expiryDate": expiryDate,
             "qty": qty,
             "unit": unit,
-            "image_url": image_url  # Add the image URL to the data
+            "image_url": image_filename  # Add the image URL to the data
         }
 
         food_ref.set(data)

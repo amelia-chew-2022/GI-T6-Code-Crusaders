@@ -152,6 +152,11 @@ class _InventoryState extends State<Inventory> {
   List<Food> filterByExpiry(List<Food> foods) {
     DateTime now = DateTime.now();
     switch (selectedFilter) {
+      case 'Today':
+        return foods
+            .where((food) =>
+                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 1)
+            .toList();
       case 'Next 3 days':
         return foods
             .where((food) =>
@@ -176,7 +181,7 @@ class _InventoryState extends State<Inventory> {
         // All
         return foods
             .where((food) =>
-                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays >= 0)
+                DateTime.parse(food.expiryDate).difference(DateTime.parse(DateFormat("yyyy-MM-dd").format(now))).inDays <= 100)
             .toList();
     }
   }
@@ -336,6 +341,7 @@ class _InventoryState extends State<Inventory> {
                                                   },
                                                   items: <String>[
                                                     'All',
+                                                    'Today',
                                                     'Next 3 days',
                                                     'Next 7 days',
                                                     'Next 14 days',
